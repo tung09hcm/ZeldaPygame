@@ -14,19 +14,27 @@ class GamePanel:
         self.player = Player()
 
     def run(self):
+        clock = pygame.time.Clock()  # Create a clock object for FPS control
+
         while self.running:
             # Kiểm tra sự kiện
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.running = False
+
             # Fill the background color
             self.window.fill(self.background_color)
 
-            # Update the player animation and draw the player
+            # Update the player animation, handle keys, and draw the player
+            self.player.handle_keys()
             self.player.update_animation()
             self.player.draw(self.window)
 
             # Cập nhật màn hình
             pygame.display.flip()
 
+            # Limit the frame rate to 60 FPS
+            clock.tick(60)
+
         pygame.quit()
+

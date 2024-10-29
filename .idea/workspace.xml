@@ -5,9 +5,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="57e98e9c-4886-4cdd-9f52-e403402edde2" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/tool/Dungeoncave.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tool/Dungeonforest.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/entity/player.py" beforeDir="false" afterPath="$PROJECT_DIR$/entity/player.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/gamepanel.py" beforeDir="false" afterPath="$PROJECT_DIR$/main/gamepanel.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/keyhandler.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tool/cut.py" beforeDir="false" afterPath="$PROJECT_DIR$/tool/cut.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -41,12 +45,13 @@
     "Python.player.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "git-widget-placeholder": "main",
-    "last_opened_file_path": "C:/Users/THANH TUNG/PycharmProjects/ZeldaGameDevelopment/tool",
+    "last_opened_file_path": "C:/Users/THANH TUNG/PycharmProjects/ZeldaGameDevelopment/resources/player",
     "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable"
   }
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\THANH TUNG\PycharmProjects\ZeldaGameDevelopment\resources\player" />
       <recent name="C:\Users\THANH TUNG\PycharmProjects\ZeldaGameDevelopment\tool" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
