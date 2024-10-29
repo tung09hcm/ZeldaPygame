@@ -5,15 +5,16 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="57e98e9c-4886-4cdd-9f52-e403402edde2" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/entity/entity.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/entity/player.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/main/collisionchecker.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/main/gamepanel.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/main/keyhandler.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/main/main.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/titles/title.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/titles/titlemanager.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/entity/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tool/cut.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tool/trainer.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/ZeldaGameDevelopment.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/ZeldaGameDevelopment.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/entity/entity.py" beforeDir="false" afterPath="$PROJECT_DIR$/entity/entity.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/entity/player.py" beforeDir="false" afterPath="$PROJECT_DIR$/entity/player.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/gamepanel.py" beforeDir="false" afterPath="$PROJECT_DIR$/main/gamepanel.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main/main.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -30,9 +31,9 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 5
-}]]></component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 5
+}</component>
   <component name="ProjectId" id="2o5gRQaHV5JGorQQHcW27ux5nWw" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
@@ -41,10 +42,25 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+    "Python.cut.executor": "Run",
+    "Python.gamepanel.executor": "Run",
+    "Python.main.executor": "Run",
+    "Python.player.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "main"
+    "git-widget-placeholder": "main",
+    "last_opened_file_path": "C:/Users/THANH TUNG/PycharmProjects/ZeldaGameDevelopment/tool",
+    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable"
   }
 }]]></component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\THANH TUNG\PycharmProjects\ZeldaGameDevelopment\tool" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\THANH TUNG\PycharmProjects\ZeldaGameDevelopment\entity" />
+      <recent name="C:\Users\THANH TUNG\PycharmProjects\ZeldaGameDevelopment\main" />
+    </key>
+  </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
