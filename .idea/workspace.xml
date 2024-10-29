@@ -5,16 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="57e98e9c-4886-4cdd-9f52-e403402edde2" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/entity/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tool/cut.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tool/trainer.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/ZeldaGameDevelopment.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/ZeldaGameDevelopment.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/entity/entity.py" beforeDir="false" afterPath="$PROJECT_DIR$/entity/entity.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/entity/player.py" beforeDir="false" afterPath="$PROJECT_DIR$/entity/player.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/gamepanel.py" beforeDir="false" afterPath="$PROJECT_DIR$/main/gamepanel.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main/main.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
