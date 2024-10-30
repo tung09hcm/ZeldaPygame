@@ -9,7 +9,7 @@ class Player(Entity):
         self.worldX = 28*64
         self.worldY = 20*64
         # Các biến riêng cho Player
-        self.speed = 7
+        self.speed = 12
         self.health = 100  # Ví dụ: sức khỏe của người chơi
         self.attack_power = 10  # Ví dụ: sức tấn công của người chơi
         self.defense = 5  # Ví dụ: sức phòng thủ của người chơi
@@ -69,22 +69,22 @@ class Player(Entity):
         keys = pygame.key.get_pressed()
         new_x, new_y = self.worldX, self.worldY
 
-        if keys[pygame.K_SPACE]:
+        if keys[pygame.K_j]:
             self.attack = True
-            self.speed = 3
-        if keys[pygame.K_UP]:
+            self.speed = 7
+        if keys[pygame.K_w]:
             new_y -= self.speed
             self.direction = "up"
             self.click = True
-        elif keys[pygame.K_DOWN]:
+        elif keys[pygame.K_s]:
             new_y += self.speed
             self.direction = "down"
             self.click = True
-        elif keys[pygame.K_LEFT]:
+        elif keys[pygame.K_a]:
             new_x -= self.speed
             self.direction = "left"
             self.click = True
-        elif keys[pygame.K_RIGHT]:
+        elif keys[pygame.K_d]:
             new_x += self.speed
             self.direction = "right"
             self.click = True
@@ -150,4 +150,4 @@ class Player(Entity):
             elif self.direction == "right":
                 screen.blit(self.attack_right, (screen_x + 64, screen_y))
             self.attack = False
-            self.speed = 7
+            self.speed = 12

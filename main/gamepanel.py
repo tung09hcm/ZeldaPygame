@@ -26,15 +26,20 @@ class GamePanel:
 
         # Load map from file
         self.map = []
-        with open("../resources/map/map1", 'r') as file:
-            for line in file:
-                row = [int(value) for value in line.split()]
-                self.map.append(row)
+        self.intialize_map("../resources/map/map1")
 
         # Camera offset initialized to (0,0)
         self.camera_offset_x = 0
         self.camera_offset_y = 0
         self.player = Player(self.map)
+
+
+    def intialize_map(self, file_map):
+        with open(file_map, 'r') as file:
+            for line in file:
+                row = [int(value) for value in line.split()]
+                self.map.append(row)
+
     def update_camera(self):
         """Update the camera offset based on the player's position."""
         # Center the camera on the player, with a margin around the player for movement
