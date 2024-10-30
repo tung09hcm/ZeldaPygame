@@ -5,12 +5,47 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="57e98e9c-4886-4cdd-9f52-e403402edde2" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/tool/Dungeoncave.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tool/Dungeonforest.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/titles/tile.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/entity/player.py" beforeDir="false" afterPath="$PROJECT_DIR$/entity/player.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/gamepanel.py" beforeDir="false" afterPath="$PROJECT_DIR$/main/gamepanel.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/keyhandler.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/map/earth.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/map/floor01.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/map/grass00.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/map/grass01.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/map/hut.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/map/road00.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/map/road01.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/map/road02.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/map/road03.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/map/road04.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/map/road05.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/map/road06.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/map/road07.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/map/road08.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/map/road09.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/map/road10.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/map/road11.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/map/road12.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/map/table01.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/map/tree.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/map/wall.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/map/water00.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/map/water01.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/map/water02.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/map/water03.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/map/water04.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/map/water05.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/map/water06.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/map/water07.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/map/water08.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/map/water09.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/map/water10.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/map/water11.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/map/water12.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/map/water13.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/titles/title.py" beforeDir="false" afterPath="$PROJECT_DIR$/titles/tilemanager.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/titles/titlemanager.py" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/tool/cut.py" beforeDir="false" afterPath="$PROJECT_DIR$/tool/cut.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -43,14 +78,16 @@
     "Python.gamepanel.executor": "Run",
     "Python.main.executor": "Run",
     "Python.player.executor": "Run",
+    "Python.tilemanager.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "git-widget-placeholder": "main",
-    "last_opened_file_path": "C:/Users/THANH TUNG/PycharmProjects/ZeldaGameDevelopment/resources/player",
+    "last_opened_file_path": "C:/Users/THANH TUNG/PycharmProjects/ZeldaGameDevelopment/resources/map",
     "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable"
   }
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\THANH TUNG\PycharmProjects\ZeldaGameDevelopment\resources\map" />
       <recent name="C:\Users\THANH TUNG\PycharmProjects\ZeldaGameDevelopment\resources\player" />
       <recent name="C:\Users\THANH TUNG\PycharmProjects\ZeldaGameDevelopment\tool" />
     </key>

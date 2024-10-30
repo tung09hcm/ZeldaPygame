@@ -5,8 +5,8 @@ import pygame
 class Player(Entity):
     def __init__(self):
         super().__init__()  # Gọi hàm khởi tạo của lớp cha (Entity)
-        self.worldX = 496 - 32
-        self.worldY = 312 - 48
+        self.worldX = 28*64
+        self.worldY = 20*64
         # Các biến riêng cho Player
         self.speed = 7
         self.health = 100  # Ví dụ: sức khỏe của người chơi
@@ -88,17 +88,22 @@ class Player(Entity):
             self.current_frame = (self.current_frame + 1) % 4
         self.click = False
 
-    def draw(self, screen):
+    def draw(self, screen, camera_offset_x, camera_offset_y):
+        # Calculate on-screen position
+        screen_x = self.worldX + camera_offset_x
+        screen_y = self.worldY + camera_offset_y
+
         # Select the correct animation based on direction
         if not self.click:
             if self.direction == "down":
                 self.image = self.down_images[3]
-            if self.direction == "left":
+            elif self.direction == "left":
                 self.image = self.left_images[3]
-            if self.direction == "right":
+            elif self.direction == "right":
                 self.image = self.right_images[3]
-            if self.direction == "up":
+            elif self.direction == "up":
                 self.image = self.up_images[3]
+
         if self.direction == "up":
             self.image = self.up_images[self.current_frame]
         elif self.direction == "down":
@@ -108,16 +113,17 @@ class Player(Entity):
         elif self.direction == "right":
             self.image = self.right_images[self.current_frame]
 
-        # Draw the player on the screen at the current position
-        screen.blit(self.image, (self.worldX, self.worldY))
+        # Draw player with calculated offset
+        screen.blit(self.image, (screen_x, screen_y))
+
         if self.attack:
             if self.direction == "up":
-                screen.blit(self.attack_up, (self.worldX + 8, self.worldY - 40))
+                screen.blit(self.attack_up, (screen_x + 8, screen_y - 40))
             elif self.direction == "down":
-                screen.blit(self.attack_down, (self.worldX + 8, self.worldY + 96))
+                screen.blit(self.attack_down, (screen_x + 8, screen_y + 96))
             elif self.direction == "left":
-                screen.blit(self.attack_left, (self.worldX - 48, self.worldY + 32))
+                screen.blit(self.attack_left, (screen_x - 48, screen_y + 32))
             elif self.direction == "right":
-                screen.blit(self.attack_right, (self.worldX + 48 + 13, self.worldY + 32))
+                screen.blit(self.attack_right, (screen_x + 48 + 13, screen_y + 32))
             self.attack = False
             self.speed = 7

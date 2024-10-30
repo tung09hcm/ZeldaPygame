@@ -28,7 +28,7 @@ def cut_image(image_path, output_folder):
             tile = img.crop((left, upper, right, lower))
 
             # Đặt tên cho file
-            tile_name = f"{row * cols + col + 1 + 50}.png"  # Tên từ 1 đến 12
+            tile_name = f"{row * cols + col + 1 + 64}.png"  # Tên từ 1 đến 12
 
             # Lưu ô vào thư mục output
             tile.save(f"{output_folder}/{tile_name}")
