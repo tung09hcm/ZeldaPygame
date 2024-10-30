@@ -1,10 +1,11 @@
 from entity.entity import Entity
 import pygame
-
+import math
 
 class Player(Entity):
-    def __init__(self):
+    def __init__(self, game_map):
         super().__init__()  # Gọi hàm khởi tạo của lớp cha (Entity)
+        self.map = game_map
         self.worldX = 28*64
         self.worldY = 20*64
         # Các biến riêng cho Player
@@ -38,38 +39,61 @@ class Player(Entity):
             pygame.transform.scale2x(pygame.image.load("../resources/player/15.png").convert_alpha()),
             pygame.transform.scale2x(pygame.image.load("../resources/player/16.png").convert_alpha())
         ]
-
+        self.tile_size = 64
         # Initialize animation
         self.current_frame = 0
         self.animation_counter = 0  # To control animation speed
         self.click = False
         self.attack = False
-        self.attack_up = pygame.image.load("../resources/player/sword_up.png").convert_alpha()
-        self.attack_down = pygame.image.load("../resources/player/sword_down.png").convert_alpha()
-        self.attack_right = pygame.image.load("../resources/player/sword_right.png").convert_alpha()
-        self.attack_left = pygame.image.load("../resources/player/sword_left.png").convert_alpha()
+        self.attack_up = pygame.transform.scale2x(pygame.image.load("../resources/player/sword_up.png").convert_alpha())
+        self.attack_down = pygame.transform.scale2x(pygame.image.load("../resources/player/sword_down.png").convert_alpha())
+        self.attack_right = pygame.transform.scale2x(pygame.image.load("../resources/player/sword_right.png").convert_alpha())
+        self.attack_left = pygame.transform.scale2x(pygame.image.load("../resources/player/sword_left.png").convert_alpha())
+
+    def can_move_to(self, x, y):
+        # Chuyển đổi tọa độ thực tế của người chơi thành chỉ số ô trong lưới bản đồ
+        tile_x = (x // self.tile_size)
+        tile_y = (y // self.tile_size)
+        print("title_x: " + str(tile_x))
+        print("title_y: " + str(tile_y))
+
+        if self.direction == "right":
+            tile_x = tile_x + 1
+        elif self.direction == "down":
+            tile_y = tile_y + 1
+        # Kiểm tra mã ô có bị chặn không
+        blocked_codes = {0, 16} | set(range(18, 38))
+        return self.map[tile_y][tile_x] not in blocked_codes
 
     def handle_keys(self):
         keys = pygame.key.get_pressed()
+        new_x, new_y = self.worldX, self.worldY
+
         if keys[pygame.K_SPACE]:
             self.attack = True
             self.speed = 3
         if keys[pygame.K_UP]:
-            self.worldY -= self.speed
+            new_y -= self.speed
             self.direction = "up"
             self.click = True
         elif keys[pygame.K_DOWN]:
-            self.worldY += self.speed
+            new_y += self.speed
             self.direction = "down"
             self.click = True
         elif keys[pygame.K_LEFT]:
-            self.worldX -= self.speed
+            new_x -= self.speed
             self.direction = "left"
             self.click = True
         elif keys[pygame.K_RIGHT]:
-            self.worldX += self.speed
+            new_x += self.speed
             self.direction = "right"
             self.click = True
+
+
+
+        # Chỉ cập nhật vị trí nếu ô tiếp theo không bị chặn
+        if self.can_move_to(new_x, new_y):
+            self.worldX, self.worldY = new_x, new_y
 
     def update_animation(self):
         # Switch frame every 10 game ticks
@@ -118,12 +142,12 @@ class Player(Entity):
 
         if self.attack:
             if self.direction == "up":
-                screen.blit(self.attack_up, (screen_x + 8, screen_y - 40))
+                screen.blit(self.attack_up, (screen_x, screen_y-64))
             elif self.direction == "down":
-                screen.blit(self.attack_down, (screen_x + 8, screen_y + 96))
+                screen.blit(self.attack_down, (screen_x, screen_y+64))
             elif self.direction == "left":
-                screen.blit(self.attack_left, (screen_x - 48, screen_y + 32))
+                screen.blit(self.attack_left, (screen_x - 64, screen_y))
             elif self.direction == "right":
-                screen.blit(self.attack_right, (screen_x + 48 + 13, screen_y + 32))
+                screen.blit(self.attack_right, (screen_x + 64, screen_y))
             self.attack = False
             self.speed = 7

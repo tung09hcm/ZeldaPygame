@@ -13,7 +13,7 @@ class GamePanel:
         pygame.display.set_caption(self.title)
         self.running = True
 
-        self.player = Player()
+
         self.tile_size = 64
 
         # Load title images
@@ -34,7 +34,7 @@ class GamePanel:
         # Camera offset initialized to (0,0)
         self.camera_offset_x = 0
         self.camera_offset_y = 0
-
+        self.player = Player(self.map)
     def update_camera(self):
         """Update the camera offset based on the player's position."""
         # Center the camera on the player, with a margin around the player for movement
