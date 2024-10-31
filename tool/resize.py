@@ -13,7 +13,7 @@ for filename in os.listdir(folder_path):
         # Mở ảnh
         with Image.open(file_path) as img:
             # Thu nhỏ ảnh xuống 32x32
-            resized_img = img.resize((32, 32), Image.LANCZOS)
+            resized_img = img.resize((32, 48), Image.LANCZOS)
 
             # Lưu ảnh lại (ghi đè lên file gốc)
             resized_img.save(file_path)

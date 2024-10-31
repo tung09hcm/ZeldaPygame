@@ -18,15 +18,15 @@ class GamePanel:
 
         # Load title images
         self.title = []
-        for i in range(38):
-            filename = f"../resources/title/{i:03}.png"
+        for i in range(684):
+            filename = f"../resources/pokemon_directory/{i:03}.png"
             image = pygame.image.load(filename).convert_alpha()
-            scaled_image = pygame.transform.scale2x(pygame.transform.scale2x(image))  # Scale the image 4x
+            scaled_image = (pygame.transform.scale2x(image))  # Scale the image 4x
             self.title.append(scaled_image)
 
         # Load map from file
         self.map = []
-        self.intialize_map("../resources/map/map1")
+        self.intialize_map("../resources/map/starter")
 
         # Camera offset initialized to (0,0)
         self.camera_offset_x = 0

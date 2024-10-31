@@ -5,9 +5,10 @@ import math
 class Player(Entity):
     def __init__(self, game_map):
         super().__init__()  # Gọi hàm khởi tạo của lớp cha (Entity)
+        self.blocked_code = []
         self.map = game_map
-        self.worldX = 28*64
-        self.worldY = 20*64
+        self.worldX = 6*64
+        self.worldY = 7*64
         # Các biến riêng cho Player
         self.speed = 12
         self.health = 100  # Ví dụ: sức khỏe của người chơi
@@ -49,6 +50,19 @@ class Player(Entity):
         self.attack_down = pygame.transform.scale2x(pygame.image.load("../resources/player/sword_down.png").convert_alpha())
         self.attack_right = pygame.transform.scale2x(pygame.image.load("../resources/player/sword_right.png").convert_alpha())
         self.attack_left = pygame.transform.scale2x(pygame.image.load("../resources/player/sword_left.png").convert_alpha())
+        self.init_collison()
+    def init_collison(self):
+        with open("../resources/map/collison", 'r') as file:
+            lines = file.readlines()
+
+            for i in range(0, len(lines), 2):  # Bước qua từng cặp dòng
+                code = lines[i].strip()  # Mã
+                is_blocked = lines[i + 1].strip()  # Giá trị true/false
+
+                if is_blocked.lower() == 'true':  # Kiểm tra nếu là true
+                    # Lấy số từ mã (giả sử mã có định dạng như '000.png')
+                    number = int(code.split('.')[0])  # Lấy phần trước dấu '.'
+                    self.blocked_code.append(number)  # Thêm số vào danh sách
 
     def can_move_to(self, x, y):
         # Chuyển đổi tọa độ thực tế của người chơi thành chỉ số ô trong lưới bản đồ
@@ -62,8 +76,8 @@ class Player(Entity):
         elif self.direction == "down":
             tile_y = tile_y + 1
         # Kiểm tra mã ô có bị chặn không
-        blocked_codes = {0, 16} | set(range(18, 38))
-        return self.map[tile_y][tile_x] not in blocked_codes
+
+        return self.map[tile_y][tile_x] not in self.blocked_code
 
     def handle_keys(self):
         keys = pygame.key.get_pressed()
