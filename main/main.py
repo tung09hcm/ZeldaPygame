@@ -1,4 +1,4 @@
-# main.py
+# main.pyw
 from gamepanel import GamePanel
 
 if __name__ == "__main__":

@@ -18,7 +18,7 @@ class GamePanel:
 
         # Load title images
         self.title = []
-        for i in range(684):
+        for i in range(785):
             filename = f"../resources/pokemon_directory/{i:03}.png"
             image = pygame.image.load(filename).convert_alpha()
             scaled_image = (pygame.transform.scale2x(image))  # Scale the image 4x

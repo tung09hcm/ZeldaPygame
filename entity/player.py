@@ -5,10 +5,16 @@ import math
 class Player(Entity):
     def __init__(self, game_map):
         super().__init__()  # Gọi hàm khởi tạo của lớp cha (Entity)
+        self.level = 1
+        self.max_hp = 50
+        self.current_hp = 50
+        self.max_xp = 50
+        self.current_xp = 20
+
         self.blocked_code = []
         self.map = game_map
-        self.worldX = 6*64
-        self.worldY = 7*64
+        self.worldX = 16*64
+        self.worldY = 17*64
         # Các biến riêng cho Player
         self.speed = 12
         self.health = 100  # Ví dụ: sức khỏe của người chơi
@@ -64,23 +70,75 @@ class Player(Entity):
                     number = int(code.split('.')[0])  # Lấy phần trước dấu '.'
                     self.blocked_code.append(number)  # Thêm số vào danh sách
 
+    def draw_bars(self, screen):
+        WHITE = (255, 255, 255)
+        LIGHT_GRAY = (100, 100, 100)
+        DARK_GRAY = (50, 50, 50)
+        GREEN = (34, 177, 76)
+        BLUE = (0, 162, 232)
+        BLACK = (0, 0, 0)
+
+        # Background for the entire bar section
+        pygame.draw.rect(screen, DARK_GRAY, (0, 0, 410, 80), border_radius=15)
+
+        # HP Bar
+        pygame.draw.rect(screen, LIGHT_GRAY, (5, 5, 400, 24), border_radius=10)
+        pygame.draw.rect(screen, WHITE, (5, 5, 400, 24), 2, border_radius=10)
+        hp_width = int((self.current_hp / self.max_hp) * 396)
+        pygame.draw.rect(screen, GREEN, (7, 7, hp_width, 20), border_radius=10)
+
+        # XP Bar
+        pygame.draw.rect(screen, LIGHT_GRAY, (5, 40, 300, 14), border_radius=7)
+        pygame.draw.rect(screen, WHITE, (5, 40, 300, 14), 2, border_radius=7)
+        xp_width = int((self.current_xp / self.max_xp) * 296)
+        pygame.draw.rect(screen, BLUE, (7, 42, xp_width, 10), border_radius=7)
+
+        # Display HP text with black outline below the XP bar
+        font = pygame.font.Font(None, 30)
+        hp_text = f"Level: {self.level}     HP: {self.current_hp}/{self.max_hp}"
+
+        # Set new position below the XP bar
+        text_x, text_y = 5, 60
+
+        # Render black outline by drawing text multiple times slightly offset
+        text_surface = font.render(hp_text, True, BLACK)
+        for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)]:  # Offsets for outline
+            screen.blit(text_surface, (text_x + dx, text_y + dy))
+
+        # Render the main white text
+        text_surface = font.render(hp_text, True, WHITE)
+        screen.blit(text_surface, (text_x, text_y))
+
     def can_move_to(self, x, y):
-        # Chuyển đổi tọa độ thực tế của người chơi thành chỉ số ô trong lưới bản đồ
-        tile_x = (x // self.tile_size)
-        tile_y = (y // self.tile_size)
-        print("title_x: " + str(tile_x))
-        print("title_y: " + str(tile_y))
+        # Chuyển đổi vị trí của người chơi thành chỉ số ô lưới của bản đồ
+        tile_x = x // self.tile_size
+        tile_y = y // self.tile_size
 
-        if self.direction == "right":
-            tile_x = tile_x + 1
-        elif self.direction == "down":
-            tile_y = tile_y + 1
-        # Kiểm tra mã ô có bị chặn không
+        # Các điểm kiểm tra va chạm xung quanh khung người chơi
+        collision_points = [
+            (x - self.tile_size // 2, y - 64 // 2),  # Top-left corner
+            (x + self.tile_size // 2 - 1, y - 64 // 2),  # Top-right corner
+            (x - self.tile_size // 2, y + 96 // 2 - 1),  # Bottom-left corner
+            (x + self.tile_size // 2 - 1, y + 96 // 2 - 1)  # Bottom-right corner
+        ]
 
-        return self.map[tile_y][tile_x] not in self.blocked_code
+        # Kiểm tra từng điểm va chạm có nằm trong mã bị chặn không
+        for px, py in collision_points:
+            tile_x = px // self.tile_size
+            tile_y = py // self.tile_size
+            # if self.direction == "right":
+            #     tile_x = tile_x + 1
+            # elif self.direction == "down":
+            #     tile_y = tile_y + 1
+            if self.map[tile_y][tile_x] in self.blocked_code:
+                return False  # Nếu một trong các điểm va chạm bị chặn thì trả về False
+
+        return True  # Tất cả các điểm đều không bị chặn
 
     def handle_keys(self):
         keys = pygame.key.get_pressed()
+        tile_x = ((self.worldX) // self.tile_size)
+        tile_y = ((self.worldY) // self.tile_size)
         new_x, new_y = self.worldX, self.worldY
 
         if keys[pygame.K_j]:
@@ -127,9 +185,10 @@ class Player(Entity):
         self.click = False
 
     def draw(self, screen, camera_offset_x, camera_offset_y):
+
         # Calculate on-screen position
-        screen_x = self.worldX + camera_offset_x
-        screen_y = self.worldY + camera_offset_y
+        screen_x = self.worldX + camera_offset_x - 48
+        screen_y = self.worldY + camera_offset_y - 32
 
         # Select the correct animation based on direction
         if not self.click:
@@ -165,3 +224,4 @@ class Player(Entity):
                 screen.blit(self.attack_right, (screen_x + 64, screen_y))
             self.attack = False
             self.speed = 12
+        self.draw_bars(screen)

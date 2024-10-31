@@ -28,7 +28,7 @@ def cut_image(image_path, output_folder):
             tile = img.crop((left, upper, right, lower))
 
             # Đặt tên cho file với định dạng ba chữ số
-            tile_index = row * cols + col  + 64# Tính chỉ số bắt đầu từ 1
+            tile_index = row * cols + col  # Tính chỉ số bắt đầu từ 1
             tile_name = f"{tile_index:03}.png"  # Định dạng tên file với ba chữ số
 
             # Lưu ô vào thư mục output
@@ -36,4 +36,4 @@ def cut_image(image_path, output_folder):
 
 
 # Sử dụng hàm
-cut_image("Outside.png", "../resources/outside")
+cut_image("Dungeonforest.png", "../resources/dungeon")
