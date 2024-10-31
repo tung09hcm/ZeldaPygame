@@ -5,6 +5,7 @@ import math
 class Player(Entity):
     def __init__(self, game_map):
         super().__init__()  # Gọi hàm khởi tạo của lớp cha (Entity)
+        self.show_inventory = False
         self.level = 1
         self.max_hp = 50
         self.current_hp = 50
@@ -13,8 +14,8 @@ class Player(Entity):
 
         self.blocked_code = []
         self.map = game_map
-        self.worldX = 16*64
-        self.worldY = 17*64
+        self.worldX = 17*64
+        self.worldY = 16*64
         # Các biến riêng cho Player
         self.speed = 12
         self.health = 100  # Ví dụ: sức khỏe của người chơi
@@ -69,6 +70,66 @@ class Player(Entity):
                     # Lấy số từ mã (giả sử mã có định dạng như '000.png')
                     number = int(code.split('.')[0])  # Lấy phần trước dấu '.'
                     self.blocked_code.append(number)  # Thêm số vào danh sách
+
+    def draw_stats_menu(self, screen):
+        print("gọi hàm show stats menu")
+        # Colors for the menu and text
+        DARK_GRAY = (40, 40, 40)
+        LIGHT_GRAY = (200, 200, 200)
+        WHITE = (255, 255, 255)
+        GREEN = (34, 177, 76)
+        BLUE = (0, 162, 232)
+
+        # Center the menu on the screen
+        menu_width, menu_height = 300, 500
+        screen_rect = screen.get_rect()
+        menu_x = (screen_rect.width - menu_width) // 2 - 100 + 70 - 50
+        menu_y = (screen_rect.height - menu_height) // 2 - 70 + 40
+
+        # Draw the background rectangle
+        pygame.draw.rect(screen, DARK_GRAY, (menu_x, menu_y, menu_width, menu_height), border_radius=15)
+
+        # Prepare font for text rendering
+        font = pygame.font.Font(None, 24)
+
+        # Define positions for each stat label and value
+        stats = [
+            ("Level", self.level),
+            ("Attack", self.attack_power),
+            ("Defense", self.defense),
+            ("Special Attack", self.attack_power * 1.2),  # Example placeholder calculation
+            ("Special Defense", self.defense * 1.1),  # Example placeholder calculation
+            ("HP", f"{self.current_hp}/{self.max_hp}"),
+            ("EXP", f"{self.current_xp}/{self.max_xp}")
+        ]
+
+        # Render each stat label and value
+        y_offset = menu_y + 20  # Start position for text within the menu
+        for stat_name, stat_value in stats:
+            # Render the stat name
+            name_surface = font.render(f"{stat_name}: ", True, WHITE)
+            screen.blit(name_surface, (menu_x + 20, y_offset))
+
+            # Render the stat value
+            value_surface = font.render(str(stat_value), True, LIGHT_GRAY)
+            screen.blit(value_surface, (menu_x + 180, y_offset))
+
+            y_offset += 30  # Move down for the next stat
+
+        # Inventory section
+        inventory_y = y_offset + 20
+        inventory_title = font.render("Inventory:", True, WHITE)
+        screen.blit(inventory_title, (menu_x + 20, inventory_y))
+
+        # Example inventory items (replace with actual items if available)
+        inventory_items = ["Potion x 5", "Shield", "Sword"]  # Placeholder items
+        item_y = inventory_y + 30
+        for item in inventory_items:
+            item_surface = font.render(f"- {item}", True, LIGHT_GRAY)
+            screen.blit(item_surface, (menu_x + 40, item_y))
+            item_y += 25  # Space out items in the inventory
+
+    # Usage: Inside the main game loop or event handler, call player.draw_stats_menu(screen)
 
     def draw_bars(self, screen):
         WHITE = (255, 255, 255)
@@ -126,6 +187,7 @@ class Player(Entity):
         for px, py in collision_points:
             tile_x = px // self.tile_size
             tile_y = py // self.tile_size
+            # print(f"Điểm va chạm: ({tile_x}, {tile_y})")
             # if self.direction == "right":
             #     tile_x = tile_x + 1
             # elif self.direction == "down":
@@ -137,13 +199,23 @@ class Player(Entity):
 
     def handle_keys(self):
         keys = pygame.key.get_pressed()
-        tile_x = ((self.worldX) // self.tile_size)
-        tile_y = ((self.worldY) // self.tile_size)
+        tile_x = (self.worldX // self.tile_size)
+        tile_y = (self.worldY // self.tile_size)
         new_x, new_y = self.worldX, self.worldY
 
         if keys[pygame.K_j]:
             self.attack = True
             self.speed = 7
+        if keys[pygame.K_SPACE]:
+            print("nhấn space")
+            if not self.show_inventory:
+                self.show_inventory = True
+                print("true thành công")
+        if keys[pygame.K_k]:
+            print("nhấn escape")
+            if self.show_inventory:
+                self.show_inventory = False
+                print("true thành công")
         if keys[pygame.K_w]:
             new_y -= self.speed
             self.direction = "up"
@@ -189,7 +261,8 @@ class Player(Entity):
         # Calculate on-screen position
         screen_x = self.worldX + camera_offset_x - 48
         screen_y = self.worldY + camera_offset_y - 32
-
+        if self.show_inventory == True:
+            self.draw_stats_menu(screen)
         # Select the correct animation based on direction
         if not self.click:
             if self.direction == "down":
@@ -224,4 +297,5 @@ class Player(Entity):
                 screen.blit(self.attack_right, (screen_x + 64, screen_y))
             self.attack = False
             self.speed = 12
-        self.draw_bars(screen)
+        if self.show_inventory == False:
+            self.draw_bars(screen)
