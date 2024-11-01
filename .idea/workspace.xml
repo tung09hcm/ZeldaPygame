@@ -5,12 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="57e98e9c-4886-4cdd-9f52-e403402edde2" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/tool/orc1_hurt_red.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tool/orc1_walk_attack_front _full.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tool/orc3_attack_swing.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/entity/player.py" beforeDir="false" afterPath="$PROJECT_DIR$/entity/player.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/map/collison" beforeDir="false" afterPath="$PROJECT_DIR$/resources/map/collison" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

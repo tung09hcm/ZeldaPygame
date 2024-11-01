@@ -20,7 +20,7 @@ class Player(Entity):
             "MAXPOTION": 1,
             "SUPERPOTION": 10
         }
-
+        self.inventory_list = list(self.inventory_map.items())
 
         self.player_save_game = False
         self.use = True
@@ -118,7 +118,8 @@ class Player(Entity):
         pygame.draw.rect(screen, DARK_GRAY, (menu_x + 320, menu_y, menu_width, menu_height / 3), border_radius=15)
 
         # Get the current item's name
-        item_name = self.inventory_items[self.item_index]
+
+        item_name = self.inventory_list[self.item_index][0]
 
         # Create the filename by appending '.png' to the item name
         image_filename = f"{item_name}.png"
@@ -217,7 +218,7 @@ class Player(Entity):
         # Example inventory items (replace with actual items if available)
 
         item_y = inventory_y + 30
-        for i, item in enumerate(self.inventory_items):
+        for i, item in enumerate(self.inventory_list):
             if i == self.item_index and not self.player_save_game:
                 arrow_points = [
                     (menu_x + 35, item_y + 7),  # Tip of the arrow
@@ -225,10 +226,13 @@ class Player(Entity):
                     (menu_x + 20, item_y + 14)  # Bottom of the arrow
                 ]
                 pygame.draw.polygon(screen, GREEN, arrow_points)
-                item_surface = font.render(f"- {item}", True, GREEN)
+                item_surface = font.render(f"{item[0]}", True, GREEN)
+                number_item_surface = font.render(f"{item[1]}", True, GREEN)
             else:
-                item_surface = font.render(f"- {item}", True, LIGHT_GRAY)
+                item_surface = font.render(f"{item[0]}", True, LIGHT_GRAY)
+                number_item_surface = font.render(f"{item[1]}", True, LIGHT_GRAY)
             screen.blit(item_surface, (menu_x + 40, item_y))
+            screen.blit(number_item_surface, (menu_x + 200, item_y))
             item_y += 25  # Space out items in the inventory
 
         # Draw save game button
@@ -251,16 +255,16 @@ class Player(Entity):
             use_item_surface = new_font.render("Use", True, LIGHT_GRAY)
             remove_item_surface = new_font.render("Remove", True, LIGHT_GRAY)
 
-
         # Calculate the rectangle size and position
+
         # SAVE
-        text_rect = item_surface.get_rect(topleft=(menu_x + 55, item_y + 25))
+        text_rect = item_surface.get_rect(topleft=(menu_x + 55, 530 + 25))
         border_rect = text_rect.inflate(10, 10)  # Add padding around the text for the border
         # USE
-        use_text_rect = use_item_surface.get_rect(topleft=(info_x - 70 + 15, item_y - 340))
+        use_text_rect = use_item_surface.get_rect(topleft=(info_x - 70 + 15, 540 - 340))
         use_border_rect = use_text_rect.inflate(10, 10)  # Add padding around the text for the border
         # REMOVE
-        remove_text_rect = remove_item_surface.get_rect(topleft=(info_x - 70 + 15 + 90, item_y - 340))
+        remove_text_rect = remove_item_surface.get_rect(topleft=(info_x - 70 + 15 + 90, 540 - 340))
         remove_border_rect = remove_text_rect.inflate(10, 10)  # Add padding around the text for the border
 
         # Draw the border and then the text
@@ -280,7 +284,6 @@ class Player(Entity):
             pygame.draw.rect(screen, GREEN, border_rect, 2)  # Border width of 2 pixels
             pygame.draw.rect(screen, WHITE, use_border_rect, 2)
             pygame.draw.rect(screen, WHITE, remove_border_rect, 2)
-
 
         screen.blit(item_surface, text_rect.topleft)
         screen.blit(use_item_surface, use_text_rect.topleft)
@@ -355,18 +358,6 @@ class Player(Entity):
 
         return True  # Tất cả các điểm đều không bị chặn
 
-    def use_item(self, index):
-        if 0 <= index < len(self.inventory_items):
-            item = self.inventory_items[index]
-            print(f"Used {item}")
-            # Add item-specific usage effects here
-            # Example: self.current_hp = min(self.max_hp, self.current_hp + 10) if item == "Potion" else None
-
-    def remove_item(self, index):
-        if 0 <= index < len(self.inventory_items):
-            item = self.inventory_items.pop(index)
-            print(f"Removed {item}")
-
     def handle_keys(self):
         keys = pygame.key.get_pressed()
         current_time = pygame.time.get_ticks()
@@ -410,7 +401,7 @@ class Player(Entity):
 
                 self.last_use_time = current_time
                 if self.player_save_game:
-                    self.item_index = len(self.inventory_items) - 1
+                    self.item_index = len(self.inventory_list) - 1
                     self.player_save_game = False
                     return
 
@@ -421,8 +412,8 @@ class Player(Entity):
             elif keys[pygame.K_s] and current_time - self.last_use_time > self.use_delay:
                 self.last_use_time = current_time
                 self.item_index += 1
-                if len(self.inventory_items) <= self.item_index:
-                    self.item_index = len(self.inventory_items) - 1
+                if len(self.inventory_list) <= self.item_index:
+                    self.item_index = len(self.inventory_list) - 1
                     self.player_save_game = True
             elif keys[pygame.K_d] and current_time - self.last_use_time > self.use_delay:
                 self.use = False
@@ -433,11 +424,37 @@ class Player(Entity):
             # tương tác item
             elif keys[pygame.K_j] and current_time - self.last_use_time > self.use_delay:
                 self.last_use_time = current_time
-                if self.use:
-                    print("use " + self.inventory_items[self.item_index])
-                elif self.remove:
-                    print("remove " + self.inventory_items[self.item_index])
+                if self.player_save_game:
+                    print("save game")
+                elif self.use:
+                    print("use " + self.inventory_list[self.item_index][0])
 
+                    # Lấy tên khóa từ inventory_list dựa trên chỉ số item_index
+                    item_name = self.inventory_list[self.item_index][0]
+
+                    # Cập nhật số lượng item trong inventory_map
+                    self.inventory_map[item_name] -= 1
+
+                    # Làm mới lại inventory_list để đồng bộ với inventory_map
+                    self.inventory_list = list(self.inventory_map.items())
+
+                elif self.remove:
+                    if len(self.inventory_list) == 1:
+                        return
+
+                    # Lấy tên khóa từ inventory_list dựa trên chỉ số item_index
+                    item_name = ""
+                    if len(self.inventory_list) > 0:
+                        item_name = self.inventory_list[self.item_index][0]
+
+                    # Xóa phần tử trong inventory_map theo tên khóa
+                    if item_name in self.inventory_map:
+                        del self.inventory_map[item_name]
+                        self.item_index = 0
+
+                    # Làm mới lại inventory_list để đồng bộ với inventory_map
+                    self.inventory_list = list(self.inventory_map.items())
+                    print("remove " + self.inventory_list[self.item_index][0])
 
     def update_animation(self):
         # Switch frame every 10 game ticks
