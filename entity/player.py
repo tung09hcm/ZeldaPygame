@@ -10,8 +10,7 @@ class Player(Entity):
         self.use_delay = 100  # Delay in milliseconds
 
         self.item_index = 0
-        self.inventory_items = ["POTION", "FULLHEAL", "FULLRESTORE", "HYPERPOTION", "MAXPOTION",
-                                "SUPERPOTION"]  # Placeholder items
+
         self.inventory_map = {
             "POTION": 3,
             "FULLHEAL": 5,
@@ -81,10 +80,25 @@ class Player(Entity):
             pygame.image.load("../resources/player/sword_right.png").convert_alpha())
         self.attack_left = pygame.transform.scale2x(
             pygame.image.load("../resources/player/sword_left.png").convert_alpha())
-        self.init_collison()
+        self.init_collison("../resources/map/collison")
 
-    def init_collison(self):
-        with open("../resources/map/collison", 'r') as file:
+    def set_map(self, map):
+        self.map = map
+    def set_collison(self, filepath):
+        self.blocked_code = []
+        with open(filepath, 'r') as file:
+            lines = file.readlines()
+
+            for i in range(0, len(lines), 2):  # Bước qua từng cặp dòng
+                code = lines[i].strip()  # Mã
+                is_blocked = lines[i + 1].strip()  # Giá trị true/false
+
+                if is_blocked.lower() == 'true':  # Kiểm tra nếu là true
+                    # Lấy số từ mã (giả sử mã có định dạng như '000.png')
+                    number = int(code.split('.')[0])  # Lấy phần trước dấu '.'
+                    self.blocked_code.append(number)  # Thêm số vào danh sách
+    def init_collison(self, filepath):
+        with open(filepath, 'r') as file:
             lines = file.readlines()
 
             for i in range(0, len(lines), 2):  # Bước qua từng cặp dòng
@@ -288,8 +302,6 @@ class Player(Entity):
         screen.blit(item_surface, text_rect.topleft)
         screen.blit(use_item_surface, use_text_rect.topleft)
         screen.blit(remove_item_surface, remove_text_rect.topleft)
-
-    # Usage: Inside the main game loop or event handler, call player.draw_stats_menu(screen)
 
     def draw_bars(self, screen):
         WHITE = (255, 255, 255)
