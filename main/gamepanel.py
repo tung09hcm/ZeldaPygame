@@ -3,7 +3,7 @@ from entity.player import Player
 
 
 class GamePanel:
-    def __init__(self, width=992, height=624, title="My Pygame Window"):
+    def __init__(self, width=21*64, height=11*64, title="My Pygame Window"):
         pygame.init()
         self.width = width
         self.height = height

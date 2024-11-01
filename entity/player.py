@@ -2,9 +2,12 @@ from entity.entity import Entity
 import pygame
 import math
 
+
 class Player(Entity):
     def __init__(self, game_map):
         super().__init__()  # Gọi hàm khởi tạo của lớp cha (Entity)
+        self.item_index = 0
+        self.inventory_items = ["Potion x 5", "Full Heal x 3", "Full Restore x 10"]  # Placeholder items
         self.show_inventory = False
         self.level = 1
         self.max_hp = 50
@@ -14,8 +17,8 @@ class Player(Entity):
 
         self.blocked_code = []
         self.map = game_map
-        self.worldX = 17*64
-        self.worldY = 16*64
+        self.worldX = 17 * 64
+        self.worldY = 16 * 64
         # Các biến riêng cho Player
         self.speed = 12
         self.health = 100  # Ví dụ: sức khỏe của người chơi
@@ -54,10 +57,14 @@ class Player(Entity):
         self.click = False
         self.attack = False
         self.attack_up = pygame.transform.scale2x(pygame.image.load("../resources/player/sword_up.png").convert_alpha())
-        self.attack_down = pygame.transform.scale2x(pygame.image.load("../resources/player/sword_down.png").convert_alpha())
-        self.attack_right = pygame.transform.scale2x(pygame.image.load("../resources/player/sword_right.png").convert_alpha())
-        self.attack_left = pygame.transform.scale2x(pygame.image.load("../resources/player/sword_left.png").convert_alpha())
+        self.attack_down = pygame.transform.scale2x(
+            pygame.image.load("../resources/player/sword_down.png").convert_alpha())
+        self.attack_right = pygame.transform.scale2x(
+            pygame.image.load("../resources/player/sword_right.png").convert_alpha())
+        self.attack_left = pygame.transform.scale2x(
+            pygame.image.load("../resources/player/sword_left.png").convert_alpha())
         self.init_collison()
+
     def init_collison(self):
         with open("../resources/map/collison", 'r') as file:
             lines = file.readlines()
@@ -72,7 +79,6 @@ class Player(Entity):
                     self.blocked_code.append(number)  # Thêm số vào danh sách
 
     def draw_stats_menu(self, screen):
-        print("gọi hàm show stats menu")
         # Colors for the menu and text
         DARK_GRAY = (40, 40, 40)
         LIGHT_GRAY = (200, 200, 200)
@@ -83,8 +89,8 @@ class Player(Entity):
         # Center the menu on the screen
         menu_width, menu_height = 300, 500
         screen_rect = screen.get_rect()
-        menu_x = (screen_rect.width - menu_width) // 2 - 100 + 70 - 50
-        menu_y = (screen_rect.height - menu_height) // 2 - 70 + 40
+        menu_x = (screen_rect.width - menu_width) // 2 - 100 + 60
+        menu_y = (screen_rect.height - menu_height) // 2 - 70 + 40 + 30
 
         # Draw the background rectangle
         pygame.draw.rect(screen, DARK_GRAY, (menu_x, menu_y, menu_width, menu_height), border_radius=15)
@@ -122,9 +128,17 @@ class Player(Entity):
         screen.blit(inventory_title, (menu_x + 20, inventory_y))
 
         # Example inventory items (replace with actual items if available)
-        inventory_items = ["Potion x 5", "Shield", "Sword"]  # Placeholder items
+
         item_y = inventory_y + 30
-        for item in inventory_items:
+        for i, item in enumerate(self.inventory_items):
+            if i == self.item_index:
+                arrow_points = [
+                    (menu_x + 35, item_y + 7),  # Tip of the arrow
+                    (menu_x + 20, item_y),  # Top of the arrow
+                    (menu_x + 20, item_y + 14)  # Bottom of the arrow
+                ]
+                pygame.draw.polygon(screen, WHITE, arrow_points)
+
             item_surface = font.render(f"- {item}", True, LIGHT_GRAY)
             screen.blit(item_surface, (menu_x + 40, item_y))
             item_y += 25  # Space out items in the inventory
@@ -172,72 +186,93 @@ class Player(Entity):
 
     def can_move_to(self, x, y):
         # Chuyển đổi vị trí của người chơi thành chỉ số ô lưới của bản đồ
-        tile_x = x // self.tile_size
-        tile_y = y // self.tile_size
+        x += 32
+        y += 48
+        tile_x = int(x // self.tile_size)  # Ép kiểu thành int
+        tile_y = int(y // self.tile_size)  # Ép kiểu thành int
 
-        # Các điểm kiểm tra va chạm xung quanh khung người chơi
+        # Kích thước của điểm va chạm nhỏ hơn, nằm trung tâm người chơi
+        collision_size = 32  # kích thước của vùng va chạm nhỏ hơn (20x20)
+        half_collision_size = collision_size // 2
+
+        # Các điểm kiểm tra va chạm nhỏ hơn nằm ở trung tâm người chơi
         collision_points = [
-            (x - self.tile_size // 2, y - 64 // 2),  # Top-left corner
-            (x + self.tile_size // 2 - 1, y - 64 // 2),  # Top-right corner
-            (x - self.tile_size // 2, y + 96 // 2 - 1),  # Bottom-left corner
-            (x + self.tile_size // 2 - 1, y + 96 // 2 - 1)  # Bottom-right corner
+            (x - half_collision_size, y - 48 / 2),  # Top-left corner of collision box
+            (x + half_collision_size - 1, y - 48 / 2),  # Top-right corner
+            (x - half_collision_size, y + 48),  # Bottom-left corner
+            (x + half_collision_size - 1, y + 48)  # Bottom-right corner
         ]
 
         # Kiểm tra từng điểm va chạm có nằm trong mã bị chặn không
         for px, py in collision_points:
-            tile_x = px // self.tile_size
-            tile_y = py // self.tile_size
-            # print(f"Điểm va chạm: ({tile_x}, {tile_y})")
-            # if self.direction == "right":
-            #     tile_x = tile_x + 1
-            # elif self.direction == "down":
-            #     tile_y = tile_y + 1
+            tile_x = int(px // self.tile_size)  # Ép kiểu thành int
+            tile_y = int(py // self.tile_size)  # Ép kiểu thành int
             if self.map[tile_y][tile_x] in self.blocked_code:
                 return False  # Nếu một trong các điểm va chạm bị chặn thì trả về False
 
         return True  # Tất cả các điểm đều không bị chặn
 
+    def use_item(self, index):
+        if 0 <= index < len(self.inventory_items):
+            item = self.inventory_items[index]
+            print(f"Used {item}")
+            # Add item-specific usage effects here
+            # Example: self.current_hp = min(self.max_hp, self.current_hp + 10) if item == "Potion" else None
+
+    def remove_item(self, index):
+        if 0 <= index < len(self.inventory_items):
+            item = self.inventory_items.pop(index)
+            print(f"Removed {item}")
+
     def handle_keys(self):
         keys = pygame.key.get_pressed()
-        tile_x = (self.worldX // self.tile_size)
-        tile_y = (self.worldY // self.tile_size)
-        new_x, new_y = self.worldX, self.worldY
-
-        if keys[pygame.K_j]:
-            self.attack = True
-            self.speed = 7
-        if keys[pygame.K_SPACE]:
-            print("nhấn space")
-            if not self.show_inventory:
-                self.show_inventory = True
-                print("true thành công")
         if keys[pygame.K_k]:
-            print("nhấn escape")
-            if self.show_inventory:
-                self.show_inventory = False
-                print("true thành công")
-        if keys[pygame.K_w]:
-            new_y -= self.speed
-            self.direction = "up"
-            self.click = True
-        elif keys[pygame.K_s]:
-            new_y += self.speed
-            self.direction = "down"
-            self.click = True
-        elif keys[pygame.K_a]:
-            new_x -= self.speed
-            self.direction = "left"
-            self.click = True
-        elif keys[pygame.K_d]:
-            new_x += self.speed
-            self.direction = "right"
-            self.click = True
+            self.show_inventory = False
+        if not self.show_inventory:
 
+            tile_x = (self.worldX // self.tile_size)
+            tile_y = (self.worldY // self.tile_size)
+            new_x, new_y = self.worldX, self.worldY
 
+            if keys[pygame.K_j]:
+                self.attack = True
+                self.speed = 7
+            if keys[pygame.K_SPACE]:
+                print("nhấn space")
+                if not self.show_inventory:
+                    self.show_inventory = True
+                    print("true thành công")
 
-        # Chỉ cập nhật vị trí nếu ô tiếp theo không bị chặn
-        if self.can_move_to(new_x, new_y):
-            self.worldX, self.worldY = new_x, new_y
+            if keys[pygame.K_w]:
+                new_y -= self.speed
+                self.direction = "up"
+                self.click = True
+            elif keys[pygame.K_s]:
+                new_y += self.speed
+                self.direction = "down"
+                self.click = True
+            elif keys[pygame.K_a]:
+                new_x -= self.speed
+                self.direction = "left"
+                self.click = True
+            elif keys[pygame.K_d]:
+                new_x += self.speed
+                self.direction = "right"
+                self.click = True
+
+            # Chỉ cập nhật vị trí nếu ô tiếp theo không bị chặn
+            if self.can_move_to(new_x, new_y):
+                self.worldX, self.worldY = new_x, new_y
+        else:
+            if keys[pygame.K_w]:
+                if self.item_index == 0:
+                    return
+                self.item_index -= 1
+            elif keys[pygame.K_s]:
+                self.item_index += 1
+                if len(self.inventory_items) <= self.item_index:
+                    self.item_index = len(self.inventory_items) - 1
+            # tương tác item
 
     def update_animation(self):
         # Switch frame every 10 game ticks
@@ -258,11 +293,15 @@ class Player(Entity):
 
     def draw(self, screen, camera_offset_x, camera_offset_y):
 
+        print("worldX: " + str(self.worldX // 64) + " worldY: " + str(self.worldY // 64))
+
         # Calculate on-screen position
-        screen_x = self.worldX + camera_offset_x - 48
-        screen_y = self.worldY + camera_offset_y - 32
-        if self.show_inventory == True:
+        screen_x = self.worldX + camera_offset_x
+        screen_y = self.worldY + camera_offset_y
+        # Draw stats menu if inventory is shown
+        if self.show_inventory:
             self.draw_stats_menu(screen)
+
         # Select the correct animation based on direction
         if not self.click:
             if self.direction == "down":
@@ -288,14 +327,16 @@ class Player(Entity):
 
         if self.attack:
             if self.direction == "up":
-                screen.blit(self.attack_up, (screen_x, screen_y-64))
+                screen.blit(self.attack_up, (screen_x, screen_y - 64))
             elif self.direction == "down":
-                screen.blit(self.attack_down, (screen_x, screen_y+64))
+                screen.blit(self.attack_down, (screen_x, screen_y + 64))
             elif self.direction == "left":
                 screen.blit(self.attack_left, (screen_x - 64, screen_y))
             elif self.direction == "right":
                 screen.blit(self.attack_right, (screen_x + 64, screen_y))
             self.attack = False
             self.speed = 12
-        if self.show_inventory == False:
-            self.draw_bars(screen)
+        self.draw_bars(screen)
+
+        RED = (255, 0, 0)
+        pygame.draw.circle(screen, RED, (screen_x, screen_y), 3)
