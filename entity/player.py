@@ -532,8 +532,6 @@ class Player(Entity):
                     self.inventory_list = list(self.inventory_map.items())
 
                 elif self.remove:
-                    if len(self.inventory_list) == 1:
-                        return
 
                     # Lấy tên khóa từ inventory_list dựa trên chỉ số item_index
                     item_name = ""
@@ -547,13 +545,7 @@ class Player(Entity):
 
                     # Làm mới lại inventory_list để đồng bộ với inventory_map
                     self.inventory_list = list(self.inventory_map.items())
-                    # Check if inventory_list is empty before accessing its elements
-                    if not self.inventory_list:
-                        print("Inventory is empty.")
-                        return  # Or handle the empty inventory scenario as needed
 
-                    # Get item name from inventory_list based on item_index
-                    item_name = self.inventory_list[self.item_index][0]
                     print("remove " + item_name)
 
     def update_animation(self):
