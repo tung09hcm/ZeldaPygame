@@ -1,19 +1,25 @@
 from entity.entity import Entity
 import pygame
-import math
+import os
 
 
 class Player(Entity):
     def __init__(self, game_map):
         super().__init__()  # Gọi hàm khởi tạo của lớp cha (Entity)
+        self.last_use_time = 0  # Track last usage time
+        self.use_delay = 200  # Delay in milliseconds
+
         self.item_index = 0
-        self.inventory_items = ["Potion x 5", "Full Heal x 3", "Full Restore x 10"]  # Placeholder items
+        self.inventory_items = ["POTION", "FULLHEAL", "FULLRESTORE", "HYPERPOTION", "MAXPOTION",
+                                "SUPERPOTION"]  # Placeholder items
+        self.inventory_items_number = [3, 5, 7]
         self.show_inventory = False
         self.level = 1
         self.max_hp = 50
         self.current_hp = 50
         self.max_xp = 50
         self.current_xp = 20
+        self.money = "500$"
 
         self.blocked_code = []
         self.map = game_map
@@ -79,6 +85,8 @@ class Player(Entity):
                     self.blocked_code.append(number)  # Thêm số vào danh sách
 
     def draw_stats_menu(self, screen):
+        # Prepare font for text rendering
+        font = pygame.font.Font(None, 24)
         # Colors for the menu and text
         DARK_GRAY = (40, 40, 40)
         LIGHT_GRAY = (200, 200, 200)
@@ -89,14 +97,80 @@ class Player(Entity):
         # Center the menu on the screen
         menu_width, menu_height = 300, 500
         screen_rect = screen.get_rect()
-        menu_x = (screen_rect.width - menu_width) // 2 - 100 + 60
+        menu_x = (screen_rect.width - menu_width) // 2 - 100 + 60 - 150
         menu_y = (screen_rect.height - menu_height) // 2 - 70 + 40 + 30
 
         # Draw the background rectangle
         pygame.draw.rect(screen, DARK_GRAY, (menu_x, menu_y, menu_width, menu_height), border_radius=15)
+        # Draw the background rectangle for item
+        pygame.draw.rect(screen, DARK_GRAY, (menu_x + 320, menu_y, menu_width, menu_height / 3), border_radius=15)
 
-        # Prepare font for text rendering
-        font = pygame.font.Font(None, 24)
+        # Get the current item's name
+        item_name = self.inventory_items[self.item_index]
+
+        # Create the filename by appending '.png' to the item name
+        image_filename = f"{item_name}.png"
+
+        # Construct the full path to the image
+        image_path = os.path.join("../resources/item/", image_filename)
+
+        # Load the image
+        try:
+            item_image = pygame.transform.scale2x(pygame.image.load(image_path).convert_alpha())
+            screen.blit(item_image, (menu_x + 320 + 10, menu_y + 10))
+        except pygame.error as e:
+            print(f"Unable to load image: {image_path}. Error: {e}")
+        # Định nghĩa giới hạn chiều rộng và vị trí cho văn bản
+        info_x = menu_x + 320 + 25 + 70
+        info_y = menu_y + 25
+        max_info_width = menu_width - 100  # Giới hạn chiều rộng cho văn bản thông tin
+
+        # Văn bản thông tin vật phẩm
+        item_info_text_potion = "A spray-type wound medicine. It restores HP by 20 points."
+        item_info_full_heal = "A spray-type medicine. It heals all the status problems."
+        item_info_full_restore = "A medicine that fully restores the HP and heals any status problems."
+        item_info_hyperpotion = "A spray-type wound medicine. It restores the HP by 200 points."
+        item_info_maxpotion = "A spray-type wound medicine. It fully restores the HP."
+        item_info_superpotion = "A spray-type wound medicine. It restores the HP by 50 points."
+        # Chia văn bản thành nhiều dòng dựa trên chiều rộng giới hạn
+        item_info_text = ""
+        if item_name == "POTION":
+            item_info_text = item_info_text_potion
+        elif item_name == "FULLHEAL":
+            item_info_text = item_info_full_heal
+        elif item_name == "FULLRESTORE":
+            item_info_text = item_info_full_restore
+        elif item_name == "HYPERPOTION":
+            item_info_text = item_info_hyperpotion
+        elif item_name == "MAXPOTION":
+            item_info_text = item_info_maxpotion
+        elif item_name == "SUPERPOTION":
+            item_info_text = item_info_superpotion
+
+        words = item_info_text.split()
+        lines = []
+        current_line = words[0]
+
+        for word in words[1:]:
+            # Thêm từ tiếp theo và kiểm tra chiều rộng của dòng
+            test_line = current_line + " " + word
+            test_surface = font.render(test_line, True, LIGHT_GRAY)
+
+            if test_surface.get_width() <= max_info_width:
+                current_line = test_line
+            else:
+                # Nếu dòng quá dài, lưu dòng hiện tại và bắt đầu dòng mới
+                lines.append(current_line)
+                current_line = word
+
+        # Thêm dòng cuối cùng
+        lines.append(current_line)
+
+        # Hiển thị từng dòng của văn bản, với khoảng cách giữa các dòng
+        line_height = font.get_height() + 5
+        for i, line in enumerate(lines):
+            line_surface = font.render(line, True, LIGHT_GRAY)
+            screen.blit(line_surface, (info_x, info_y + i * line_height))
 
         # Define positions for each stat label and value
         stats = [
@@ -106,7 +180,8 @@ class Player(Entity):
             ("Special Attack", self.attack_power * 1.2),  # Example placeholder calculation
             ("Special Defense", self.defense * 1.1),  # Example placeholder calculation
             ("HP", f"{self.current_hp}/{self.max_hp}"),
-            ("EXP", f"{self.current_xp}/{self.max_xp}")
+            ("EXP", f"{self.current_xp}/{self.max_xp}"),
+            ("Money", f"{self.money}")
         ]
 
         # Render each stat label and value
@@ -118,7 +193,7 @@ class Player(Entity):
 
             # Render the stat value
             value_surface = font.render(str(stat_value), True, LIGHT_GRAY)
-            screen.blit(value_surface, (menu_x + 180, y_offset))
+            screen.blit(value_surface, (menu_x + 200, y_offset))
 
             y_offset += 30  # Move down for the next stat
 
@@ -137,9 +212,10 @@ class Player(Entity):
                     (menu_x + 20, item_y),  # Top of the arrow
                     (menu_x + 20, item_y + 14)  # Bottom of the arrow
                 ]
-                pygame.draw.polygon(screen, WHITE, arrow_points)
-
-            item_surface = font.render(f"- {item}", True, LIGHT_GRAY)
+                pygame.draw.polygon(screen, GREEN, arrow_points)
+                item_surface = font.render(f"- {item}", True, GREEN)
+            else:
+                item_surface = font.render(f"- {item}", True, LIGHT_GRAY)
             screen.blit(item_surface, (menu_x + 40, item_y))
             item_y += 25  # Space out items in the inventory
 
@@ -226,6 +302,7 @@ class Player(Entity):
 
     def handle_keys(self):
         keys = pygame.key.get_pressed()
+        current_time = pygame.time.get_ticks()
         if keys[pygame.K_k]:
             self.show_inventory = False
         if not self.show_inventory:
@@ -238,10 +315,8 @@ class Player(Entity):
                 self.attack = True
                 self.speed = 7
             if keys[pygame.K_SPACE]:
-                print("nhấn space")
                 if not self.show_inventory:
                     self.show_inventory = True
-                    print("true thành công")
 
             if keys[pygame.K_w]:
                 new_y -= self.speed
@@ -264,15 +339,20 @@ class Player(Entity):
             if self.can_move_to(new_x, new_y):
                 self.worldX, self.worldY = new_x, new_y
         else:
-            if keys[pygame.K_w]:
+            if keys[pygame.K_w] and current_time - self.last_use_time > self.use_delay:
+                self.last_use_time = current_time
                 if self.item_index == 0:
                     return
                 self.item_index -= 1
-            elif keys[pygame.K_s]:
+            elif keys[pygame.K_s] and current_time - self.last_use_time > self.use_delay:
+                self.last_use_time = current_time
                 self.item_index += 1
                 if len(self.inventory_items) <= self.item_index:
                     self.item_index = len(self.inventory_items) - 1
             # tương tác item
+            elif keys[pygame.K_j] and current_time - self.last_use_time > self.use_delay:
+                print("use" + self.inventory_items[self.item_index])
+                self.last_use_time = current_time
 
     def update_animation(self):
         # Switch frame every 10 game ticks
@@ -293,7 +373,7 @@ class Player(Entity):
 
     def draw(self, screen, camera_offset_x, camera_offset_y):
 
-        print("worldX: " + str(self.worldX // 64) + " worldY: " + str(self.worldY // 64))
+        # print("worldX: " + str(self.worldX // 64) + " worldY: " + str(self.worldY // 64))
 
         # Calculate on-screen position
         screen_x = self.worldX + camera_offset_x
@@ -323,6 +403,7 @@ class Player(Entity):
             self.image = self.right_images[self.current_frame]
 
         # Draw player with calculated offset
+        # if not self.show_inventory:
         screen.blit(self.image, (screen_x, screen_y))
 
         if self.attack:
