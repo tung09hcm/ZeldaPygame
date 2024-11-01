@@ -7,12 +7,24 @@ class Player(Entity):
     def __init__(self, game_map):
         super().__init__()  # Gọi hàm khởi tạo của lớp cha (Entity)
         self.last_use_time = 0  # Track last usage time
-        self.use_delay = 200  # Delay in milliseconds
+        self.use_delay = 100  # Delay in milliseconds
 
         self.item_index = 0
         self.inventory_items = ["POTION", "FULLHEAL", "FULLRESTORE", "HYPERPOTION", "MAXPOTION",
                                 "SUPERPOTION"]  # Placeholder items
-        self.inventory_items_number = [3, 5, 7]
+        self.inventory_map = {
+            "POTION": 3,
+            "FULLHEAL": 5,
+            "FULLRESTORE": 7,
+            "HYPERPOTION": 2,
+            "MAXPOTION": 1,
+            "SUPERPOTION": 10
+        }
+
+
+        self.player_save_game = False
+        self.use = True
+        self.remove = False
         self.show_inventory = False
         self.level = 1
         self.max_hp = 50
@@ -95,7 +107,7 @@ class Player(Entity):
         BLUE = (0, 162, 232)
 
         # Center the menu on the screen
-        menu_width, menu_height = 300, 500
+        menu_width, menu_height = 300, 550
         screen_rect = screen.get_rect()
         menu_x = (screen_rect.width - menu_width) // 2 - 100 + 60 - 150
         menu_y = (screen_rect.height - menu_height) // 2 - 70 + 40 + 30
@@ -206,7 +218,7 @@ class Player(Entity):
 
         item_y = inventory_y + 30
         for i, item in enumerate(self.inventory_items):
-            if i == self.item_index:
+            if i == self.item_index and not self.player_save_game:
                 arrow_points = [
                     (menu_x + 35, item_y + 7),  # Tip of the arrow
                     (menu_x + 20, item_y),  # Top of the arrow
@@ -218,6 +230,61 @@ class Player(Entity):
                 item_surface = font.render(f"- {item}", True, LIGHT_GRAY)
             screen.blit(item_surface, (menu_x + 40, item_y))
             item_y += 25  # Space out items in the inventory
+
+        # Draw save game button
+        # Set the font and render the text
+        new_font = pygame.font.Font(None, 48)
+
+        if not self.player_save_game:
+            item_surface = new_font.render("Save Game", True, LIGHT_GRAY)
+            if not self.use:
+                use_item_surface = new_font.render("Use", True, LIGHT_GRAY)
+            else:
+                use_item_surface = new_font.render("Use", True, GREEN)
+            if not self.remove:
+                remove_item_surface = new_font.render("Remove", True, LIGHT_GRAY)
+            else:
+                remove_item_surface = new_font.render("Remove", True, GREEN)
+
+        else:
+            item_surface = new_font.render("Save Game", True, GREEN)
+            use_item_surface = new_font.render("Use", True, LIGHT_GRAY)
+            remove_item_surface = new_font.render("Remove", True, LIGHT_GRAY)
+
+
+        # Calculate the rectangle size and position
+        # SAVE
+        text_rect = item_surface.get_rect(topleft=(menu_x + 55, item_y + 25))
+        border_rect = text_rect.inflate(10, 10)  # Add padding around the text for the border
+        # USE
+        use_text_rect = use_item_surface.get_rect(topleft=(info_x - 70 + 15, item_y - 340))
+        use_border_rect = use_text_rect.inflate(10, 10)  # Add padding around the text for the border
+        # REMOVE
+        remove_text_rect = remove_item_surface.get_rect(topleft=(info_x - 70 + 15 + 90, item_y - 340))
+        remove_border_rect = remove_text_rect.inflate(10, 10)  # Add padding around the text for the border
+
+        # Draw the border and then the text
+        if not self.player_save_game:
+            pygame.draw.rect(screen, WHITE, border_rect, 2)  # Border width of 2 pixels
+            if not self.use:
+                pygame.draw.rect(screen, WHITE, use_border_rect, 2)  # Border width of 2 pixels
+            elif self.use and not self.player_save_game:
+                pygame.draw.rect(screen, GREEN, use_border_rect, 2)  # Border width of 2 pixels
+
+            if not self.remove:
+                pygame.draw.rect(screen, WHITE, remove_border_rect, 2)  # Border width of 2 pixels
+            elif self.remove and not self.player_save_game:
+                pygame.draw.rect(screen, GREEN, remove_border_rect, 2)  # Border width of 2 pixels
+
+        else:
+            pygame.draw.rect(screen, GREEN, border_rect, 2)  # Border width of 2 pixels
+            pygame.draw.rect(screen, WHITE, use_border_rect, 2)
+            pygame.draw.rect(screen, WHITE, remove_border_rect, 2)
+
+
+        screen.blit(item_surface, text_rect.topleft)
+        screen.blit(use_item_surface, use_text_rect.topleft)
+        screen.blit(remove_item_surface, remove_text_rect.topleft)
 
     # Usage: Inside the main game loop or event handler, call player.draw_stats_menu(screen)
 
@@ -273,8 +340,8 @@ class Player(Entity):
 
         # Các điểm kiểm tra va chạm nhỏ hơn nằm ở trung tâm người chơi
         collision_points = [
-            (x - half_collision_size, y - 48 / 2),  # Top-left corner of collision box
-            (x + half_collision_size - 1, y - 48 / 2),  # Top-right corner
+            (x - half_collision_size, y - 48 / 2 + 20),  # Top-left corner of collision box
+            (x + half_collision_size - 1, y - 48 / 2 + 20),  # Top-right corner
             (x - half_collision_size, y + 48),  # Bottom-left corner
             (x + half_collision_size - 1, y + 48)  # Bottom-right corner
         ]
@@ -340,19 +407,37 @@ class Player(Entity):
                 self.worldX, self.worldY = new_x, new_y
         else:
             if keys[pygame.K_w] and current_time - self.last_use_time > self.use_delay:
+
                 self.last_use_time = current_time
+                if self.player_save_game:
+                    self.item_index = len(self.inventory_items) - 1
+                    self.player_save_game = False
+                    return
+
                 if self.item_index == 0:
                     return
                 self.item_index -= 1
+                self.player_save_game = False
             elif keys[pygame.K_s] and current_time - self.last_use_time > self.use_delay:
                 self.last_use_time = current_time
                 self.item_index += 1
                 if len(self.inventory_items) <= self.item_index:
                     self.item_index = len(self.inventory_items) - 1
+                    self.player_save_game = True
+            elif keys[pygame.K_d] and current_time - self.last_use_time > self.use_delay:
+                self.use = False
+                self.remove = True
+            elif keys[pygame.K_a] and current_time - self.last_use_time > self.use_delay:
+                self.use = True
+                self.remove = False
             # tương tác item
             elif keys[pygame.K_j] and current_time - self.last_use_time > self.use_delay:
-                print("use" + self.inventory_items[self.item_index])
                 self.last_use_time = current_time
+                if self.use:
+                    print("use " + self.inventory_items[self.item_index])
+                elif self.remove:
+                    print("remove " + self.inventory_items[self.item_index])
+
 
     def update_animation(self):
         # Switch frame every 10 game ticks
