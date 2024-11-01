@@ -1,6 +1,7 @@
 from entity.entity import Entity
 import pygame
 import os
+import json
 
 
 class Player(Entity):
@@ -80,10 +81,73 @@ class Player(Entity):
             pygame.image.load("../resources/player/sword_right.png").convert_alpha())
         self.attack_left = pygame.transform.scale2x(
             pygame.image.load("../resources/player/sword_left.png").convert_alpha())
+
         self.init_collison("../resources/map/collison")
+        self.load_player_data("player_data.json")
+
+    def save_player_data(self, filename):
+        # Chuẩn bị dữ liệu để lưu
+        data = {
+            "inventory_map": self.inventory_map,
+            "player_save_game": self.player_save_game,
+            "use": self.use,
+            "remove": self.remove,
+            "show_inventory": self.show_inventory,
+            "level": self.level,
+            "max_hp": self.max_hp,
+            "current_hp": self.current_hp,
+            "max_xp": self.max_xp,
+            "current_xp": self.current_xp,
+            "money": self.money,
+            "worldX": self.worldX,
+            "worldY": self.worldY,
+            "speed": self.speed,
+            "health": self.health,
+            "attack_power": self.attack_power,
+            "defense": self.defense,
+            "direction": self.direction
+        }
+
+        # Ghi dữ liệu vào file JSON
+        with open(filename, "w") as file:
+            json.dump(data, file, indent=4)
+        print("Dữ liệu đã được lưu vào", filename)
+
+    def load_player_data(self, filename):
+        try:
+            with open(filename, "r") as file:
+                data = json.load(file)
+
+                # Gán các thuộc tính của người chơi từ dữ liệu đã tải
+                self.inventory_map = data.get("inventory_map", self.inventory_map)
+                self.player_save_game = data.get("player_save_game", self.player_save_game)
+                self.use = data.get("use", self.use)
+                self.remove = data.get("remove", self.remove)
+                self.show_inventory = data.get("show_inventory", self.show_inventory)
+                self.level = data.get("level", self.level)
+                self.max_hp = data.get("max_hp", self.max_hp)
+                self.current_hp = data.get("current_hp", self.current_hp)
+                self.max_xp = data.get("max_xp", self.max_xp)
+                self.current_xp = data.get("current_xp", self.current_xp)
+                self.money = data.get("money", self.money)
+                self.worldX = data.get("worldX", self.worldX)
+                self.worldY = data.get("worldY", self.worldY)
+                self.speed = data.get("speed", self.speed)
+                self.health = data.get("health", self.health)
+                self.attack_power = data.get("attack_power", self.attack_power)
+                self.defense = data.get("defense", self.defense)
+                self.direction = data.get("direction", self.direction)
+
+            # Đồng bộ inventory_list với inventory_map mới
+            self.inventory_list = list(self.inventory_map.items())
+            print("Dữ liệu đã được tải từ", filename)
+
+        except FileNotFoundError:
+            print(f"Không tìm thấy file {filename}, sử dụng giá trị mặc định.")
 
     def set_map(self, map):
         self.map = map
+
     def set_collison(self, filepath):
         self.blocked_code = []
         with open(filepath, 'r') as file:
@@ -97,6 +161,7 @@ class Player(Entity):
                     # Lấy số từ mã (giả sử mã có định dạng như '000.png')
                     number = int(code.split('.')[0])  # Lấy phần trước dấu '.'
                     self.blocked_code.append(number)  # Thêm số vào danh sách
+
     def init_collison(self, filepath):
         with open(filepath, 'r') as file:
             lines = file.readlines()
@@ -120,7 +185,6 @@ class Player(Entity):
         GREEN = (34, 177, 76)
         BLUE = (0, 162, 232)
 
-        # Center the menu on the screen
         menu_width, menu_height = 300, 550
         screen_rect = screen.get_rect()
         menu_x = (screen_rect.width - menu_width) // 2 - 100 + 60 - 150
@@ -129,75 +193,76 @@ class Player(Entity):
         # Draw the background rectangle
         pygame.draw.rect(screen, DARK_GRAY, (menu_x, menu_y, menu_width, menu_height), border_radius=15)
         # Draw the background rectangle for item
-        pygame.draw.rect(screen, DARK_GRAY, (menu_x + 320, menu_y, menu_width, menu_height / 3), border_radius=15)
+        if self.inventory_list:
+            pygame.draw.rect(screen, DARK_GRAY, (menu_x + 320, menu_y, menu_width, menu_height / 3), border_radius=15)
 
         # Get the current item's name
+        if self.inventory_list:
+            item_name = self.inventory_list[self.item_index][0]
 
-        item_name = self.inventory_list[self.item_index][0]
+            # Create the filename by appending '.png' to the item name
+            image_filename = f"{item_name}.png"
 
-        # Create the filename by appending '.png' to the item name
-        image_filename = f"{item_name}.png"
+            # Construct the full path to the image
+            image_path = os.path.join("../resources/item/", image_filename)
 
-        # Construct the full path to the image
-        image_path = os.path.join("../resources/item/", image_filename)
+            # Load the image
+            try:
+                item_image = pygame.transform.scale2x(pygame.image.load(image_path).convert_alpha())
+                screen.blit(item_image, (menu_x + 320 + 10, menu_y + 10))
+            except pygame.error as e:
+                print(f"Unable to load image: {image_path}. Error: {e}")
+            # Định nghĩa giới hạn chiều rộng và vị trí cho văn bản
+            info_x = menu_x + 320 + 25 + 70
+            info_y = menu_y + 25
+            max_info_width = menu_width - 100  # Giới hạn chiều rộng cho văn bản thông tin
 
-        # Load the image
-        try:
-            item_image = pygame.transform.scale2x(pygame.image.load(image_path).convert_alpha())
-            screen.blit(item_image, (menu_x + 320 + 10, menu_y + 10))
-        except pygame.error as e:
-            print(f"Unable to load image: {image_path}. Error: {e}")
-        # Định nghĩa giới hạn chiều rộng và vị trí cho văn bản
-        info_x = menu_x + 320 + 25 + 70
-        info_y = menu_y + 25
-        max_info_width = menu_width - 100  # Giới hạn chiều rộng cho văn bản thông tin
+            # Văn bản thông tin vật phẩm
+            item_info_text_potion = "A spray-type wound medicine. It restores HP by 20 points."
+            item_info_full_heal = "A spray-type medicine. It heals all the status problems."
+            item_info_full_restore = "A medicine that fully restores the HP and heals any status problems."
+            item_info_hyperpotion = "A spray-type wound medicine. It restores the HP by 200 points."
+            item_info_maxpotion = "A spray-type wound medicine. It fully restores the HP."
+            item_info_superpotion = "A spray-type wound medicine. It restores the HP by 50 points."
+            # Chia văn bản thành nhiều dòng dựa trên chiều rộng giới hạn
+            item_info_text = ""
+            if item_name == "POTION":
+                item_info_text = item_info_text_potion
+            elif item_name == "FULLHEAL":
+                item_info_text = item_info_full_heal
+            elif item_name == "FULLRESTORE":
+                item_info_text = item_info_full_restore
+            elif item_name == "HYPERPOTION":
+                item_info_text = item_info_hyperpotion
+            elif item_name == "MAXPOTION":
+                item_info_text = item_info_maxpotion
+            elif item_name == "SUPERPOTION":
+                item_info_text = item_info_superpotion
 
-        # Văn bản thông tin vật phẩm
-        item_info_text_potion = "A spray-type wound medicine. It restores HP by 20 points."
-        item_info_full_heal = "A spray-type medicine. It heals all the status problems."
-        item_info_full_restore = "A medicine that fully restores the HP and heals any status problems."
-        item_info_hyperpotion = "A spray-type wound medicine. It restores the HP by 200 points."
-        item_info_maxpotion = "A spray-type wound medicine. It fully restores the HP."
-        item_info_superpotion = "A spray-type wound medicine. It restores the HP by 50 points."
-        # Chia văn bản thành nhiều dòng dựa trên chiều rộng giới hạn
-        item_info_text = ""
-        if item_name == "POTION":
-            item_info_text = item_info_text_potion
-        elif item_name == "FULLHEAL":
-            item_info_text = item_info_full_heal
-        elif item_name == "FULLRESTORE":
-            item_info_text = item_info_full_restore
-        elif item_name == "HYPERPOTION":
-            item_info_text = item_info_hyperpotion
-        elif item_name == "MAXPOTION":
-            item_info_text = item_info_maxpotion
-        elif item_name == "SUPERPOTION":
-            item_info_text = item_info_superpotion
+            words = item_info_text.split()
+            lines = []
+            current_line = words[0]
 
-        words = item_info_text.split()
-        lines = []
-        current_line = words[0]
+            for word in words[1:]:
+                # Thêm từ tiếp theo và kiểm tra chiều rộng của dòng
+                test_line = current_line + " " + word
+                test_surface = font.render(test_line, True, LIGHT_GRAY)
 
-        for word in words[1:]:
-            # Thêm từ tiếp theo và kiểm tra chiều rộng của dòng
-            test_line = current_line + " " + word
-            test_surface = font.render(test_line, True, LIGHT_GRAY)
+                if test_surface.get_width() <= max_info_width:
+                    current_line = test_line
+                else:
+                    # Nếu dòng quá dài, lưu dòng hiện tại và bắt đầu dòng mới
+                    lines.append(current_line)
+                    current_line = word
 
-            if test_surface.get_width() <= max_info_width:
-                current_line = test_line
-            else:
-                # Nếu dòng quá dài, lưu dòng hiện tại và bắt đầu dòng mới
-                lines.append(current_line)
-                current_line = word
+            # Thêm dòng cuối cùng
+            lines.append(current_line)
 
-        # Thêm dòng cuối cùng
-        lines.append(current_line)
-
-        # Hiển thị từng dòng của văn bản, với khoảng cách giữa các dòng
-        line_height = font.get_height() + 5
-        for i, line in enumerate(lines):
-            line_surface = font.render(line, True, LIGHT_GRAY)
-            screen.blit(line_surface, (info_x, info_y + i * line_height))
+            # Hiển thị từng dòng của văn bản, với khoảng cách giữa các dòng
+            line_height = font.get_height() + 5
+            for i, line in enumerate(lines):
+                line_surface = font.render(line, True, LIGHT_GRAY)
+                screen.blit(line_surface, (info_x, info_y + i * line_height))
 
         # Define positions for each stat label and value
         stats = [
@@ -232,22 +297,23 @@ class Player(Entity):
         # Example inventory items (replace with actual items if available)
 
         item_y = inventory_y + 30
-        for i, item in enumerate(self.inventory_list):
-            if i == self.item_index and not self.player_save_game:
-                arrow_points = [
-                    (menu_x + 35, item_y + 7),  # Tip of the arrow
-                    (menu_x + 20, item_y),  # Top of the arrow
-                    (menu_x + 20, item_y + 14)  # Bottom of the arrow
-                ]
-                pygame.draw.polygon(screen, GREEN, arrow_points)
-                item_surface = font.render(f"{item[0]}", True, GREEN)
-                number_item_surface = font.render(f"{item[1]}", True, GREEN)
-            else:
-                item_surface = font.render(f"{item[0]}", True, LIGHT_GRAY)
-                number_item_surface = font.render(f"{item[1]}", True, LIGHT_GRAY)
-            screen.blit(item_surface, (menu_x + 40, item_y))
-            screen.blit(number_item_surface, (menu_x + 200, item_y))
-            item_y += 25  # Space out items in the inventory
+        if self.inventory_list:
+            for i, item in enumerate(self.inventory_list):
+                if i == self.item_index and not self.player_save_game:
+                    arrow_points = [
+                        (menu_x + 35, item_y + 7),  # Tip of the arrow
+                        (menu_x + 20, item_y),  # Top of the arrow
+                        (menu_x + 20, item_y + 14)  # Bottom of the arrow
+                    ]
+                    pygame.draw.polygon(screen, GREEN, arrow_points)
+                    item_surface = font.render(f"{item[0]}", True, GREEN)
+                    number_item_surface = font.render(f"{item[1]}", True, GREEN)
+                else:
+                    item_surface = font.render(f"{item[0]}", True, LIGHT_GRAY)
+                    number_item_surface = font.render(f"{item[1]}", True, LIGHT_GRAY)
+                screen.blit(item_surface, (menu_x + 40, item_y))
+                screen.blit(number_item_surface, (menu_x + 200, item_y))
+                item_y += 25  # Space out items in the inventory
 
         # Draw save game button
         # Set the font and render the text
@@ -255,6 +321,7 @@ class Player(Entity):
 
         if not self.player_save_game:
             item_surface = new_font.render("Save Game", True, LIGHT_GRAY)
+
             if not self.use:
                 use_item_surface = new_font.render("Use", True, LIGHT_GRAY)
             else:
@@ -275,33 +342,36 @@ class Player(Entity):
         text_rect = item_surface.get_rect(topleft=(menu_x + 55, 530 + 25))
         border_rect = text_rect.inflate(10, 10)  # Add padding around the text for the border
         # USE
-        use_text_rect = use_item_surface.get_rect(topleft=(info_x - 70 + 15, 540 - 340))
+        use_text_rect = use_item_surface.get_rect(topleft=(750 - 70 + 15, 540 - 340))
         use_border_rect = use_text_rect.inflate(10, 10)  # Add padding around the text for the border
         # REMOVE
-        remove_text_rect = remove_item_surface.get_rect(topleft=(info_x - 70 + 15 + 90, 540 - 340))
+        remove_text_rect = remove_item_surface.get_rect(topleft=(750 - 70 + 15 + 90, 540 - 340))
         remove_border_rect = remove_text_rect.inflate(10, 10)  # Add padding around the text for the border
 
         # Draw the border and then the text
         if not self.player_save_game:
             pygame.draw.rect(screen, WHITE, border_rect, 2)  # Border width of 2 pixels
-            if not self.use:
-                pygame.draw.rect(screen, WHITE, use_border_rect, 2)  # Border width of 2 pixels
-            elif self.use and not self.player_save_game:
-                pygame.draw.rect(screen, GREEN, use_border_rect, 2)  # Border width of 2 pixels
+            if self.inventory_list:
+                if not self.use:
+                    pygame.draw.rect(screen, WHITE, use_border_rect, 2)  # Border width of 2 pixels
+                elif self.use and not self.player_save_game:
+                    pygame.draw.rect(screen, GREEN, use_border_rect, 2)  # Border width of 2 pixels
 
-            if not self.remove:
-                pygame.draw.rect(screen, WHITE, remove_border_rect, 2)  # Border width of 2 pixels
-            elif self.remove and not self.player_save_game:
-                pygame.draw.rect(screen, GREEN, remove_border_rect, 2)  # Border width of 2 pixels
+                if not self.remove:
+                    pygame.draw.rect(screen, WHITE, remove_border_rect, 2)  # Border width of 2 pixels
+                elif self.remove and not self.player_save_game:
+                    pygame.draw.rect(screen, GREEN, remove_border_rect, 2)  # Border width of 2 pixels
 
         else:
             pygame.draw.rect(screen, GREEN, border_rect, 2)  # Border width of 2 pixels
-            pygame.draw.rect(screen, WHITE, use_border_rect, 2)
-            pygame.draw.rect(screen, WHITE, remove_border_rect, 2)
+            if self.inventory_list:
+                pygame.draw.rect(screen, WHITE, use_border_rect, 2)
+                pygame.draw.rect(screen, WHITE, remove_border_rect, 2)
 
         screen.blit(item_surface, text_rect.topleft)
-        screen.blit(use_item_surface, use_text_rect.topleft)
-        screen.blit(remove_item_surface, remove_text_rect.topleft)
+        if self.inventory_list:
+            screen.blit(use_item_surface, use_text_rect.topleft)
+            screen.blit(remove_item_surface, remove_text_rect.topleft)
 
     def draw_bars(self, screen):
         WHITE = (255, 255, 255)
@@ -438,6 +508,7 @@ class Player(Entity):
                 self.last_use_time = current_time
                 if self.player_save_game:
                     print("save game")
+                    self.save_player_data("player_data.json")
                 elif self.use:
                     print("use " + self.inventory_list[self.item_index][0])
 
@@ -446,6 +517,16 @@ class Player(Entity):
 
                     # Cập nhật số lượng item trong inventory_map
                     self.inventory_map[item_name] -= 1
+                    if self.inventory_map[item_name] <= 0:
+                        # Lấy tên khóa từ inventory_list dựa trên chỉ số item_index
+                        item_name = ""
+                        if len(self.inventory_list) > 0:
+                            item_name = self.inventory_list[self.item_index][0]
+
+                        # Xóa phần tử trong inventory_map theo tên khóa
+                        if item_name in self.inventory_map:
+                            del self.inventory_map[item_name]
+                            self.item_index = 0
 
                     # Làm mới lại inventory_list để đồng bộ với inventory_map
                     self.inventory_list = list(self.inventory_map.items())
@@ -466,7 +547,14 @@ class Player(Entity):
 
                     # Làm mới lại inventory_list để đồng bộ với inventory_map
                     self.inventory_list = list(self.inventory_map.items())
-                    print("remove " + self.inventory_list[self.item_index][0])
+                    # Check if inventory_list is empty before accessing its elements
+                    if not self.inventory_list:
+                        print("Inventory is empty.")
+                        return  # Or handle the empty inventory scenario as needed
+
+                    # Get item name from inventory_list based on item_index
+                    item_name = self.inventory_list[self.item_index][0]
+                    print("remove " + item_name)
 
     def update_animation(self):
         # Switch frame every 10 game ticks
