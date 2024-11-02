@@ -11,7 +11,9 @@ class Player(Entity):
         self.use_delay = 100  # Delay in milliseconds
 
         self.item_index = 0
-
+        self.overWorld = True
+        self.Mart = False
+        self.Cave = False
         self.inventory_map = {
             "POTION": 3,
             "FULLHEAL": 5,
@@ -105,7 +107,10 @@ class Player(Entity):
             "health": self.health,
             "attack_power": self.attack_power,
             "defense": self.defense,
-            "direction": self.direction
+            "direction": self.direction,
+            "overworld": self.overWorld,
+            "cave": self.Cave,
+            "mart": self.Mart
         }
 
         # Ghi dữ liệu vào file JSON
@@ -137,7 +142,9 @@ class Player(Entity):
                 self.attack_power = data.get("attack_power", self.attack_power)
                 self.defense = data.get("defense", self.defense)
                 self.direction = data.get("direction", self.direction)
-
+                self.overWorld = data.get("overworld", self.overWorld)
+                self.Cave = data.get("cave", self.overWorld)
+                self.Mart= data.get("mart", self.overWorld)
             # Đồng bộ inventory_list với inventory_map mới
             self.inventory_list = list(self.inventory_map.items())
             print("Dữ liệu đã được tải từ", filename)
@@ -148,19 +155,6 @@ class Player(Entity):
     def set_map(self, map):
         self.map = map
 
-    def set_collison(self, filepath):
-        self.blocked_code = []
-        with open(filepath, 'r') as file:
-            lines = file.readlines()
-
-            for i in range(0, len(lines), 2):  # Bước qua từng cặp dòng
-                code = lines[i].strip()  # Mã
-                is_blocked = lines[i + 1].strip()  # Giá trị true/false
-
-                if is_blocked.lower() == 'true':  # Kiểm tra nếu là true
-                    # Lấy số từ mã (giả sử mã có định dạng như '000.png')
-                    number = int(code.split('.')[0])  # Lấy phần trước dấu '.'
-                    self.blocked_code.append(number)  # Thêm số vào danh sách
 
     def init_collison(self, filepath):
         with open(filepath, 'r') as file:
@@ -615,3 +609,30 @@ class Player(Entity):
 
         RED = (255, 0, 0)
         pygame.draw.circle(screen, RED, (screen_x, screen_y), 3)
+
+    def printCoordinate(self):
+        tilex = self.worldX // self.tile_size
+        tiley = self.worldY // self.tile_size
+        print("====================")
+        print("titlex" + str(tilex))
+        print("titley" + str(tiley))
+        print("====================")
+    def checkgomart(self):
+        tilex = self.worldX // self.tile_size
+        tiley = self.worldY // self.tile_size
+
+        if tilex == 11 and tiley == 14:
+            self.overWorld = False
+            self.Mart = True
+            self.Cave = False
+            print("Enter the MART")
+
+    def checkgobackOverworld(self):
+        tilex = self.worldX // self.tile_size
+        tiley = self.worldY // self.tile_size
+
+        if tilex == 16 and tiley == 19:
+            self.overWorld = True
+            self.Mart = False
+            self.Cave = False
+            print("Enter the Overworld")

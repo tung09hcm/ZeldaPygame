@@ -18,7 +18,7 @@ class GamePanel:
 
         # Load title images
         self.title = []
-        for i in range(785):
+        for i in range(901):
             filename = f"../resources/pokemon_directory/{i:03}.png"
             image = pygame.image.load(filename).convert_alpha()
             scaled_image = (pygame.transform.scale2x(image))  # Scale the image 4x
@@ -35,6 +35,7 @@ class GamePanel:
 
 
     def intialize_map(self, file_map):
+        self.map = []
         with open(file_map, 'r') as file:
             for line in file:
                 row = [int(value) for value in line.split()]
@@ -86,6 +87,41 @@ class GamePanel:
             self.player.handle_keys()
             self.player.update_animation()
             self.player.draw(self.window, self.camera_offset_x, self.camera_offset_y)
+            self.player.checkgomart()
+
+            # Kiểm tra sự kiện chuyển bản đồ khi vào mart
+            if self.player.Mart:
+                # Hiển thị màn hình đen tạm thời trong 200ms
+                self.window.fill((0, 0, 0))
+                pygame.display.flip()
+                pygame.time.delay(50)
+
+                self.intialize_map("../resources/map/mart")
+                self.player.set_map(self.map)  # Cập nhật bản đồ cho đối tượng Player
+                self.player.worldX = 16 * 64  # Đặt lại tọa độ x cho người chơi trong mart
+                self.player.worldY = 17 * 64  # Đặt lại tọa độ y cho người chơi trong mart
+                self.player.Mart = False  # Đặt lại Mart thành False để không lặp lại sự kiện
+
+            # Kiểm tra nếu người chơi thoát khỏi mart về overworld
+            tilex = self.player.worldX // self.tile_size
+            tiley = self.player.worldY // self.tile_size
+            print("=======================================================")
+            print("\t CHECK tileX: " + str(tilex) + " tileY: " + str(tiley))
+            print("=======================================================")
+            if tilex == 16 and tiley == 18 and not self.player.overWorld:
+                # Hiển thị màn hình đen tạm thời trong 200ms
+                self.window.fill((0, 0, 0))
+                pygame.display.flip()
+                pygame.time.delay(50)
+
+                self.intialize_map("../resources/map/starter")
+                self.player.set_map(self.map)
+                self.player.worldX = 11 * 64
+                self.player.worldY = 16 * 64
+                self.player.overWorld = True
+                self.player.Mart = False
+                self.player.Cave = False
+                print("Enter the Overworld")
 
             pygame.display.flip()
             clock.tick(60)

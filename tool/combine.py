@@ -42,9 +42,9 @@ def combine_images_in_directory(folder_path, background_name, start_overlay, end
 
 # Ví dụ sử dụng
 combine_images_in_directory(
-    folder_path="../resources/dungeon",
-    background_name="042",
-    start_overlay=2,
-    end_overlay=127,
-    output_folder="../resources/dungeon/combined"
+    folder_path="../resources/pokemon_directory/combined",
+    background_name="839",
+    start_overlay=786,
+    end_overlay=901,
+    output_folder="../resources/pokemon_directory/combined/combined"
 )

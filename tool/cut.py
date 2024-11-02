@@ -36,4 +36,4 @@ def cut_image(image_path, output_folder):
 
 
 # Sử dụng hàm
-cut_image("Dungeonforest.png", "../resources/dungeon")
+cut_image("Martinterior.png", "../resources/pokemon_directory/combined")
