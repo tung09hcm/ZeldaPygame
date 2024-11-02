@@ -1,6 +1,6 @@
 import pygame
 from entity.player import Player
-
+import json
 
 class GamePanel:
     def __init__(self, width=21*64, height=11*64, title="My Pygame Window"):
@@ -18,7 +18,7 @@ class GamePanel:
 
         # Load title images
         self.title = []
-        for i in range(901):
+        for i in range(903):
             filename = f"../resources/pokemon_directory/{i:03}.png"
             image = pygame.image.load(filename).convert_alpha()
             scaled_image = (pygame.transform.scale2x(image))  # Scale the image 4x
@@ -27,11 +27,21 @@ class GamePanel:
         # Load map from file
         self.map = []
         self.intialize_map("../resources/map/starter")
+        self.player = Player(self.map)
+
+        try:
+            with open("player_data.json", "r") as file:
+                data = json.load(file)
+                self.current_map = data.get("current_map", "starter")  # Default to "starter" if missing
+                self.intialize_map(f"../resources/map/{self.current_map}")
+                self.player.set_map(self.map)
+        except FileNotFoundError:
+            print(f"Không tìm thấy file player_data.json, sử dụng giá trị mặc định.")
 
         # Camera offset initialized to (0,0)
         self.camera_offset_x = 0
         self.camera_offset_y = 0
-        self.player = Player(self.map)
+
 
 
     def intialize_map(self, file_map):
@@ -91,7 +101,8 @@ class GamePanel:
 
             # Kiểm tra sự kiện chuyển bản đồ khi vào mart
             if self.player.Mart:
-                # Hiển thị màn hình đen tạm thời trong 200ms
+                self.player.current_map = "mart"
+                # Hiển thị màn hình đen tạm thời trong 50ms
                 self.window.fill((0, 0, 0))
                 pygame.display.flip()
                 pygame.time.delay(50)
@@ -101,6 +112,19 @@ class GamePanel:
                 self.player.worldX = 16 * 64  # Đặt lại tọa độ x cho người chơi trong mart
                 self.player.worldY = 17 * 64  # Đặt lại tọa độ y cho người chơi trong mart
                 self.player.Mart = False  # Đặt lại Mart thành False để không lặp lại sự kiện
+            # Kiểm tra sự kiện chuyển bản đồ khi vào cave
+            elif self.player.Cave:
+                self.player.current_map = "cave"
+                # Hiển thị màn hình đen tạm thời trong 50ms
+                self.window.fill((0, 0, 0))
+                pygame.display.flip()
+                pygame.time.delay(50)
+
+                self.intialize_map("../resources/map/cave")
+                self.player.set_map(self.map)  # Cập nhật bản đồ cho đối tượng Player
+                self.player.worldX = 23 * 64  # Đặt lại tọa độ x cho người chơi trong cave
+                self.player.worldY = 28 * 64  # Đặt lại tọa độ y cho người chơi trong cave
+                self.player.Cave = False  # Đặt lại Mart thành False để không lặp lại sự kiện
 
             # Kiểm tra nếu người chơi thoát khỏi mart về overworld
             tilex = self.player.worldX // self.tile_size
@@ -109,7 +133,8 @@ class GamePanel:
             print("\t CHECK tileX: " + str(tilex) + " tileY: " + str(tiley))
             print("=======================================================")
             if tilex == 16 and tiley == 18 and not self.player.overWorld:
-                # Hiển thị màn hình đen tạm thời trong 200ms
+                self.player.current_map = "starter"
+                # Hiển thị màn hình đen tạm thời trong 50ms
                 self.window.fill((0, 0, 0))
                 pygame.display.flip()
                 pygame.time.delay(50)
@@ -118,6 +143,21 @@ class GamePanel:
                 self.player.set_map(self.map)
                 self.player.worldX = 11 * 64
                 self.player.worldY = 16 * 64
+                self.player.overWorld = True
+                self.player.Mart = False
+                self.player.Cave = False
+                print("Enter the Overworld")
+            if tilex == 23 and tiley == 29 and not self.player.overWorld:
+                self.player.current_map = "starter"
+                # Hiển thị màn hình đen tạm thời trong 50ms
+                self.window.fill((0, 0, 0))
+                pygame.display.flip()
+                pygame.time.delay(50)
+
+                self.intialize_map("../resources/map/starter")
+                self.player.set_map(self.map)
+                self.player.worldX = 16 * 64
+                self.player.worldY = 43 * 64
                 self.player.overWorld = True
                 self.player.Mart = False
                 self.player.Cave = False

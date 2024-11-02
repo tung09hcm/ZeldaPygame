@@ -1,6 +1,5 @@
 {
     "inventory_map": {
-        "POTION": 3,
         "FULLHEAL": 5,
         "FULLRESTORE": 7,
         "HYPERPOTION": 2,
@@ -17,14 +16,15 @@
     "max_xp": 50,
     "current_xp": 20,
     "money": "500$",
-    "worldX": 1024,
-    "worldY": 1052,
+    "worldX": 1616,
+    "worldY": 1141,
     "speed": 12,
     "health": 100,
     "attack_power": 10,
     "defense": 5,
     "direction": "up",
-    "overworld": false,
+    "overworld": true,
     "cave": false,
-    "mart": false
+    "mart": false,
+    "current_map": "starter"
 }

@@ -9,7 +9,7 @@ class Player(Entity):
         super().__init__()  # Gọi hàm khởi tạo của lớp cha (Entity)
         self.last_use_time = 0  # Track last usage time
         self.use_delay = 100  # Delay in milliseconds
-
+        self.current_map = "starter"
         self.item_index = 0
         self.overWorld = True
         self.Mart = False
@@ -110,7 +110,8 @@ class Player(Entity):
             "direction": self.direction,
             "overworld": self.overWorld,
             "cave": self.Cave,
-            "mart": self.Mart
+            "mart": self.Mart,
+            "current_map": self.current_map
         }
 
         # Ghi dữ liệu vào file JSON
@@ -144,7 +145,9 @@ class Player(Entity):
                 self.direction = data.get("direction", self.direction)
                 self.overWorld = data.get("overworld", self.overWorld)
                 self.Cave = data.get("cave", self.overWorld)
-                self.Mart= data.get("mart", self.overWorld)
+                self.Mart = data.get("mart", self.overWorld)
+
+
             # Đồng bộ inventory_list với inventory_map mới
             self.inventory_list = list(self.inventory_map.items())
             print("Dữ liệu đã được tải từ", filename)
@@ -154,7 +157,6 @@ class Player(Entity):
 
     def set_map(self, map):
         self.map = map
-
 
     def init_collison(self, filepath):
         with open(filepath, 'r') as file:
@@ -617,6 +619,7 @@ class Player(Entity):
         print("titlex" + str(tilex))
         print("titley" + str(tiley))
         print("====================")
+
     def checkgomart(self):
         tilex = self.worldX // self.tile_size
         tiley = self.worldY // self.tile_size
@@ -626,6 +629,11 @@ class Player(Entity):
             self.Mart = True
             self.Cave = False
             print("Enter the MART")
+        elif tilex == 16 and tiley == 41:
+            self.overWorld = False
+            self.Mart = False
+            self.Cave = True
+            print("Enter the CAVE")
 
     def checkgobackOverworld(self):
         tilex = self.worldX // self.tile_size
