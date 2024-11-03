@@ -36,4 +36,4 @@ def cut_image(image_path, output_folder):
 
 
 # Sử dụng hàm
-cut_image("orc1_hurt_red.png", "../resources/goblin")
+cut_image("orc1_death_full.png", "../resources/goblin/temp")

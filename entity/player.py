@@ -472,9 +472,6 @@ class Player(Entity):
             tile_y = (self.worldY // self.tile_size)
             new_x, new_y = self.worldX, self.worldY
 
-            if keys[pygame.K_j]:
-                self.attack = True
-                self.speed = 7
             if keys[pygame.K_SPACE]:
                 if not self.show_inventory:
                     self.show_inventory = True
@@ -621,17 +618,7 @@ class Player(Entity):
         # if not self.show_inventory:
         screen.blit(self.image, (screen_x, screen_y))
 
-        if self.attack:
-            if self.direction == "up":
-                screen.blit(self.attack_up, (screen_x, screen_y - 64))
-            elif self.direction == "down":
-                screen.blit(self.attack_down, (screen_x, screen_y + 64))
-            elif self.direction == "left":
-                screen.blit(self.attack_left, (screen_x - 64, screen_y))
-            elif self.direction == "right":
-                screen.blit(self.attack_right, (screen_x + 64, screen_y))
-            self.attack = False
-            self.speed = 12
+
         self.draw_bars(screen)
 
         RED = (255, 0, 0)
@@ -654,7 +641,7 @@ class Player(Entity):
             self.Mart = True
             self.Cave = False
             print("Enter the MART")
-        elif (tilex == 16 or tilex == 15 )and tiley == 41:
+        elif (tilex == 16 or tilex == 15) and tiley == 41:
             self.overWorld = False
             self.Mart = False
             self.Cave = True

@@ -5,14 +5,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="57e98e9c-4886-4cdd-9f52-e403402edde2" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/entity/goblin.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/resources/item/PORTALSTONE.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tool/orc1_death_full.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/entity/entity.py" beforeDir="false" afterPath="$PROJECT_DIR$/entity/entity.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/entity/goblin.py" beforeDir="false" afterPath="$PROJECT_DIR$/entity/goblin.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/entity/player.py" beforeDir="false" afterPath="$PROJECT_DIR$/entity/player.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/gamepanel.py" beforeDir="false" afterPath="$PROJECT_DIR$/main/gamepanel.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/player_data.json" beforeDir="false" afterPath="$PROJECT_DIR$/main/player_data.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/item/FULLHEAL.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main/main.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tool/cut.py" beforeDir="false" afterPath="$PROJECT_DIR$/tool/cut.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tool/rename.py" beforeDir="false" afterPath="$PROJECT_DIR$/tool/rename.py" afterDir="false" />
     </list>
@@ -55,14 +53,14 @@
     "Python.tilemanager.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "git-widget-placeholder": "main",
-    "last_opened_file_path": "C:/Users/THANH TUNG/PycharmProjects/ZeldaGameDevelopment/resources/item",
+    "last_opened_file_path": "C:/Users/THANH TUNG/PycharmProjects/ZeldaGameDevelopment/tool",
     "settings.editor.selected.configurable": "preferences.pluginManager"
   }
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
-      <recent name="C:\Users\THANH TUNG\PycharmProjects\ZeldaGameDevelopment\resources\item" />
       <recent name="C:\Users\THANH TUNG\PycharmProjects\ZeldaGameDevelopment\tool" />
+      <recent name="C:\Users\THANH TUNG\PycharmProjects\ZeldaGameDevelopment\resources\item" />
       <recent name="C:\Users\THANH TUNG\PycharmProjects\ZeldaGameDevelopment\resources\map" />
       <recent name="C:\Users\THANH TUNG\PycharmProjects\ZeldaGameDevelopment\resources\player" />
     </key>
