@@ -16,7 +16,7 @@ class Player(Entity):
         self.Cave = False
         self.inventory_map = {
             "POTION": 3,
-            "FULLHEAL": 5,
+            "PORTALSTONE": 5,
             "FULLRESTORE": 7,
             "HYPERPOTION": 2,
             "MAXPOTION": 1,
@@ -144,9 +144,9 @@ class Player(Entity):
                 self.defense = data.get("defense", self.defense)
                 self.direction = data.get("direction", self.direction)
                 self.overWorld = data.get("overworld", self.overWorld)
-                self.Cave = data.get("cave", self.overWorld)
-                self.Mart = data.get("mart", self.overWorld)
-
+                self.Cave = data.get("cave", self.Cave)
+                self.Mart = data.get("mart", self.Mart)
+                self.current_map = data.get("current_map")
 
             # Đồng bộ inventory_list với inventory_map mới
             self.inventory_list = list(self.inventory_map.items())
@@ -215,7 +215,7 @@ class Player(Entity):
 
             # Văn bản thông tin vật phẩm
             item_info_text_potion = "A spray-type wound medicine. It restores HP by 20 points."
-            item_info_full_heal = "A spray-type medicine. It heals all the status problems."
+            item_info_portal_stone = "A special stone that instantly returns you to the nearest healing station."
             item_info_full_restore = "A medicine that fully restores the HP and heals any status problems."
             item_info_hyperpotion = "A spray-type wound medicine. It restores the HP by 200 points."
             item_info_maxpotion = "A spray-type wound medicine. It fully restores the HP."
@@ -224,8 +224,8 @@ class Player(Entity):
             item_info_text = ""
             if item_name == "POTION":
                 item_info_text = item_info_text_potion
-            elif item_name == "FULLHEAL":
-                item_info_text = item_info_full_heal
+            elif item_name == "PORTALSTONE":
+                item_info_text = item_info_portal_stone
             elif item_name == "FULLRESTORE":
                 item_info_text = item_info_full_restore
             elif item_name == "HYPERPOTION":

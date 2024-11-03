@@ -5,8 +5,8 @@ def cut_image(image_path, output_folder):
     img = Image.open(image_path)
 
     # Kích thước của ô
-    tile_width = 32
-    tile_height = 32
+    tile_width = 64
+    tile_height = 64
 
     # Kích thước của hình ảnh
     img_width, img_height = img.size
@@ -28,7 +28,7 @@ def cut_image(image_path, output_folder):
             tile = img.crop((left, upper, right, lower))
 
             # Đặt tên cho file với định dạng ba chữ số
-            tile_index = row * cols + col  # Tính chỉ số bắt đầu từ 1
+            tile_index = row * cols + col + 24  # Tính chỉ số bắt đầu từ 1
             tile_name = f"{tile_index:03}.png"  # Định dạng tên file với ba chữ số
 
             # Lưu ô vào thư mục output
@@ -36,4 +36,4 @@ def cut_image(image_path, output_folder):
 
 
 # Sử dụng hàm
-cut_image("Martinterior.png", "../resources/pokemon_directory/combined")
+cut_image("orc1_hurt_red.png", "../resources/goblin")

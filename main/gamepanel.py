@@ -32,7 +32,7 @@ class GamePanel:
         try:
             with open("player_data.json", "r") as file:
                 data = json.load(file)
-                self.current_map = data.get("current_map", "starter")  # Default to "starter" if missing
+                self.current_map = data.get("current_map")  # Default to "starter" if missing
                 self.intialize_map(f"../resources/map/{self.current_map}")
                 self.player.set_map(self.map)
         except FileNotFoundError:
@@ -129,10 +129,8 @@ class GamePanel:
             # Kiểm tra nếu người chơi thoát khỏi mart về overworld
             tilex = self.player.worldX // self.tile_size
             tiley = self.player.worldY // self.tile_size
-            print("=======================================================")
-            print("\t CHECK tileX: " + str(tilex) + " tileY: " + str(tiley))
-            print("=======================================================")
-            if tilex == 16 and tiley == 18 and not self.player.overWorld:
+
+            if tilex == 16 and tiley == 18 and not self.player.overWorld and self.player.current_map == "mart":
                 self.player.current_map = "starter"
                 # Hiển thị màn hình đen tạm thời trong 50ms
                 self.window.fill((0, 0, 0))
@@ -147,7 +145,8 @@ class GamePanel:
                 self.player.Mart = False
                 self.player.Cave = False
                 print("Enter the Overworld")
-            if (tilex == 23 or tilex == 22 )and tiley == 29 and not self.player.overWorld:
+            if (tilex == 23 or tilex == 22 ) and tiley == 29 and not self.player.overWorld and self.player.current_map == "cave":
+                print("gán map thành starter")
                 self.player.current_map = "starter"
                 # Hiển thị màn hình đen tạm thời trong 50ms
                 self.window.fill((0, 0, 0))

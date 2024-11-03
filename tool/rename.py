@@ -1,10 +1,10 @@
 import os
 
 # Đường dẫn tới thư mục chứa ảnh
-folder_path = "../resources/pokemon_directory/combined"
+folder_path = "../resources/goblin"
 
 # Giá trị bắt đầu cho việc đặt tên (bắt đầu từ 0 cho tên đầu tiên là "000.png")
-start_number = 786
+start_number = 0
 
 # Lấy danh sách các file trong thư mục và sắp xếp chúng
 files = sorted([f for f in os.listdir(folder_path) if f.lower().endswith(('.png', '.jpg', '.jpeg'))])

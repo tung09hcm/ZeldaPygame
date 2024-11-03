@@ -1,6 +1,7 @@
 {
     "inventory_map": {
-        "FULLHEAL": 5,
+        "POTION": 3,
+        "PORTALSTONE": 5,
         "FULLRESTORE": 7,
         "HYPERPOTION": 2,
         "MAXPOTION": 1,
@@ -16,8 +17,8 @@
     "max_xp": 50,
     "current_xp": 20,
     "money": "500$",
-    "worldX": 1457,
-    "worldY": 706,
+    "worldX": 1484,
+    "worldY": 700,
     "speed": 12,
     "health": 100,
     "attack_power": 10,
