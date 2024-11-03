@@ -147,7 +147,7 @@ class GamePanel:
                 self.player.Mart = False
                 self.player.Cave = False
                 print("Enter the Overworld")
-            if tilex == 23 and tiley == 29 and not self.player.overWorld:
+            if (tilex == 23 or tilex == 22 )and tiley == 29 and not self.player.overWorld:
                 self.player.current_map = "starter"
                 # Hiển thị màn hình đen tạm thời trong 50ms
                 self.window.fill((0, 0, 0))

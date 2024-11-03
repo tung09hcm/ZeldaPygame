@@ -16,15 +16,15 @@
     "max_xp": 50,
     "current_xp": 20,
     "money": "500$",
-    "worldX": 1616,
-    "worldY": 1141,
+    "worldX": 1457,
+    "worldY": 706,
     "speed": 12,
     "health": 100,
     "attack_power": 10,
     "defense": 5,
     "direction": "up",
-    "overworld": true,
+    "overworld": false,
     "cave": false,
     "mart": false,
-    "current_map": "starter"
+    "current_map": "cave"
 }

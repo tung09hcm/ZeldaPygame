@@ -431,6 +431,31 @@ class Player(Entity):
         for px, py in collision_points:
             tile_x = int(px // self.tile_size)  # Ép kiểu thành int
             tile_y = int(py // self.tile_size)  # Ép kiểu thành int
+            if self.map[tile_y][tile_x] == 902:
+
+                if self.direction == "up":
+                    if self.map[tile_y - 1][tile_x] not in self.blocked_code:
+                        self.map[tile_y][tile_x] = 730
+                        self.map[tile_y - 1][tile_x] = 902
+                        return True
+                elif self.direction == "down":
+                    if self.map[tile_y + 1][tile_x] not in self.blocked_code:
+                        self.map[tile_y][tile_x] = 730
+                        self.map[tile_y + 1][tile_x] = 902
+                        return True
+                elif self.direction == "left":
+                    if self.map[tile_y][tile_x - 1] not in self.blocked_code:
+                        self.map[tile_y][tile_x] = 730
+                        self.map[tile_y][tile_x - 1] = 902
+                        return True
+                elif self.direction == "right":
+                    if self.map[tile_y][tile_x + 1] not in self.blocked_code:
+                        self.map[tile_y][tile_x] = 730
+                        self.map[tile_y][tile_x + 1] = 902
+                        return True
+
+                return False
+
             if self.map[tile_y][tile_x] in self.blocked_code:
                 return False  # Nếu một trong các điểm va chạm bị chặn thì trả về False
 
@@ -629,7 +654,7 @@ class Player(Entity):
             self.Mart = True
             self.Cave = False
             print("Enter the MART")
-        elif tilex == 16 and tiley == 41:
+        elif (tilex == 16 or tilex == 15 )and tiley == 41:
             self.overWorld = False
             self.Mart = False
             self.Cave = True

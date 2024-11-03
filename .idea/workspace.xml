@@ -9,6 +9,7 @@
       <change beforePath="$PROJECT_DIR$/entity/player.py" beforeDir="false" afterPath="$PROJECT_DIR$/entity/player.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/gamepanel.py" beforeDir="false" afterPath="$PROJECT_DIR$/main/gamepanel.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/player_data.json" beforeDir="false" afterPath="$PROJECT_DIR$/main/player_data.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/map/cave" beforeDir="false" afterPath="$PROJECT_DIR$/resources/map/cave" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/resources/map/collison" beforeDir="false" afterPath="$PROJECT_DIR$/resources/map/collison" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
