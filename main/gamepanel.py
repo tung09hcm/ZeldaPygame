@@ -222,12 +222,14 @@ class GamePanel:
                 self.player.map = self.map
                 self.spawn = True
                 self.current_map = "starter"
+                self.defeat_boss = False
             elif self.player.respawn:
                 self.intialize_map("../resources/map/starter")
                 self.player.respawn = False
                 self.player.map = self.map
                 self.spawn = True
                 self.current_map = "starter"
+                self.defeat_boss = False
                 print("Goblin spawn lại")
             # if self.player.current_map == "starter":
             #     self.goblinKing = GoblinKing(self.map)
@@ -307,8 +309,6 @@ class GamePanel:
                 self.player.worldX = 23 * 64  # Đặt lại tọa độ x cho người chơi trong cave
                 self.player.worldY = 28 * 64  # Đặt lại tọa độ y cho người chơi trong cave
                 self.player.Cave = False  # Đặt lại Mart thành False để không lặp lại sự kiện
-            # print("spawn: " + str(self.spawn))
-            # print("player_current_map: " + str(self.player.current_map))
             if self.spawn and self.player.current_map == "cave":
                 for _ in range(15):
                     goblin = Goblin(self.map)
@@ -370,8 +370,9 @@ class GamePanel:
                             goblin.current_hp = 0
                             goblin.state = "death"
                             self.playerLevelUp(goblin)
+
             # BOSS
-            if len(self.goblins) == 0 and self.player.current_map == "cave" and not self.defeat_boss:
+            if len(self.goblins) == 0 and self.player.current_map == "cave":
 
                 goblin_hit_box = pygame.Rect(self.goblinKing.worldX + 64 * 2 + self.camera_offset_x,
                                              self.goblinKing.worldY + 64 * 2 + self.camera_offset_y, 64 * 4, 64 * 4)
@@ -399,7 +400,7 @@ class GamePanel:
                     else:
                         self.goblinKing.state = "move"
                 # check goblin có nằm trong tầm đánh của player ko
-                if self.player.attack and self.goblinKing.state != "death":
+                if self.player.attack and self.goblinKing.state != "death" and not self.defeat_boss:
                     sword_hit_box = pygame.Rect(self.player.worldX - 96 + self.camera_offset_x,
                                                 self.player.worldY + self.camera_offset_y, 96, 96)
                     if self.player.direction == "left":

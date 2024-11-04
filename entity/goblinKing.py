@@ -309,6 +309,11 @@ class GoblinKing(Entity):
             if time.time() - self.death_time >= 3:
                 return False
         else:
+            # Switch between idle and move state to simulate wandering
+            if self.state == "idle" and random.random() < 0.05:
+                self.move()
+            elif self.state == "move" and random.random() < 0.1:
+                self.state = "idle"
             self.move_towards_player(player_x, player_y)
             # Draw the goblin on the screen
             self.draw(screen, camera_offset_x, camera_offset_y)
