@@ -6,6 +6,7 @@ import json
 import time
 import math
 
+
 class GamePanel:
     def __init__(self, width=21 * 64, height=11 * 64, title="My Pygame Window"):
         pygame.init()
@@ -211,6 +212,8 @@ class GamePanel:
         clock = pygame.time.Clock()
         attack_cooldown = 1.0
 
+        player_hit_box = pygame.Rect(self.player.worldX + self.camera_offset_x,
+                                     self.player.worldY + self.camera_offset_y, 64, 96)
         while self.running:
 
             if self.player.current_hp == 0:
@@ -312,6 +315,8 @@ class GamePanel:
                     self.goblins.append(goblin)
                     self.spawn = False
             for goblin in self.goblins:
+                if goblin.current_hp == 0:
+                    goblin.state = "death"
                 if not self.player.show_inventory:
                     if not goblin.update(self.window, self.camera_offset_x, self.camera_offset_y, self.player.worldX,
                                          self.player.worldY):
@@ -331,7 +336,7 @@ class GamePanel:
                             # Update the last attack time for the goblin
                             goblin.last_attack_time = current_time
                 # check goblin có nằm trong tầm đánh của player ko
-                if self.player.attack:
+                if self.player.attack and goblin.state != "death":
                     sword_hit_box = pygame.Rect(self.player.worldX - 96 + self.camera_offset_x,
                                                 self.player.worldY + self.camera_offset_y, 96, 96)
                     if self.player.direction == "left":
@@ -368,30 +373,31 @@ class GamePanel:
             # BOSS
             if len(self.goblins) == 0 and self.player.current_map == "cave" and not self.defeat_boss:
 
+                goblin_hit_box = pygame.Rect(self.goblinKing.worldX + 64 * 2 + self.camera_offset_x,
+                                             self.goblinKing.worldY + 64 * 2 + self.camera_offset_y, 64 * 4, 64 * 4)
+
                 if self.goblinKing.current_hp == 0:
                     self.goblinKing.state = "death"
                     self.defeat_boss = True
                 if not self.player.show_inventory:
-                    if self.goblinKing.update(self.window, self.camera_offset_x, self.camera_offset_y,
-                                           self.player.worldX,
-                                           self.player.worldY):
-                        print("goblinKing state: " + self.goblinKing.state)
-                        distance = math.sqrt((self.player.worldX - self.goblinKing.worldX + 64 * 4) ** 2 + (self.player.worldY - self.goblinKing.worldY + 64 * 4) ** 2)
-                        if self.goblinKing.state == "attack" and distance < 64:
-                            print("Goblin King ATTACk")
-                            current_time = time.time()
-                            if current_time - self.goblinKing.last_attack_time >= 0.5:
-                                # Apply damage to the player
-                                damage = (self.goblinKing.attack_power - self.player.defense) if (
-                                                                                                             self.goblinKing.attack_power - self.player.defense) > 0 else 20
-
-                                self.player.current_hp -= damage
-                                if self.player.current_hp <= 0:
-                                    self.player.current_hp = 0
-                                # Update the last attack time for the goblin
-                                self.goblinKing.last_attack_time = current_time
-                        else:
-                            self.goblinKing.state = "move"
+                    if not self.goblinKing.update(self.window, self.camera_offset_x, self.camera_offset_y,
+                                                  self.player.worldX,
+                                                  self.player.worldY):
+                        print("1")
+                    print("king state: " + self.goblinKing.state)
+                    if self.goblinKing.state == "attack":
+                        current_time = time.time()
+                        if current_time - self.goblinKing.last_attack_time >= attack_cooldown:
+                            # Apply damage to the player
+                            damage = (self.goblinKing.attack_power - self.player.defense) if (
+                                                                                            self.goblinKing.attack_power - self.player.defense) > 0 else 3
+                            self.player.current_hp -= damage
+                            if self.player.current_hp <= 0:
+                                self.player.current_hp = 0
+                            # Update the last attack time for the goblin
+                            self.goblinKing.last_attack_time = current_time
+                    else:
+                        self.goblinKing.state = "move"
                 # check goblin có nằm trong tầm đánh của player ko
                 if self.player.attack and self.goblinKing.state != "death":
                     sword_hit_box = pygame.Rect(self.player.worldX - 96 + self.camera_offset_x,
@@ -415,12 +421,11 @@ class GamePanel:
 
                     # Vẽ viền màu trắng quanh sword_hit_box
                     pygame.draw.rect(self.window, (255, 255, 255), sword_hit_box, 3)
-                    goblin_hit_box = pygame.Rect(self.goblinKing.worldX + 64 * 2 + self.camera_offset_x,
-                                                 self.goblinKing.worldY + 64 * 2 + self.camera_offset_y, 64 * 4, 64 * 4)
+
                     pygame.draw.rect(self.window, (255, 255, 255), goblin_hit_box, 3)
                     if goblin_hit_box.colliderect(sword_hit_box):
                         damage = (self.player.attack_power - self.goblinKing.defense) if (
-                                                                                                     self.player.attack_power - self.goblinKing.defense) > 0 else 10
+                                                                                                 self.player.attack_power - self.goblinKing.defense) > 0 else 10
 
                         self.goblinKing.current_hp -= damage
                         if self.goblinKing.current_hp <= 0:
@@ -431,7 +436,9 @@ class GamePanel:
             self.checkPlayerAttack()
             self.player.attack = False
             self.save_goblin_data()
+
             pygame.display.flip()
+
             clock.tick(60)
 
         pygame.quit()

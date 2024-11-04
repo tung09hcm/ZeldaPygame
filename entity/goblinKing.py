@@ -36,15 +36,15 @@ class GoblinKing(Entity):
         self.worldX = 23 * 64
         self.worldY = 10 * 64
         self.level = 15
-        self.max_hp = 15000
+        self.max_hp = 1500
         self.current_hp = self.max_hp
         self.exp = 100
         self.money = 1000
         self.direction = "down"
         self.state = "idle"  # Possible states: idle, attack, hurt, move
         self.speed = 3
-        self.attack_power = 100
-        self.defense = 80
+        self.attack_power = 30
+        self.defense = 30
         self.map = game_map
         self.current_frame = 0
         self.animation_counter = 0
@@ -186,48 +186,30 @@ class GoblinKing(Entity):
 
         return True  # Tất cả các điểm đều không bị chặn
 
-    def check_collision_with_other_goblins(self, goblins, min_distance=64):
-        # Kiểm tra xem goblin hiện tại có quá gần các goblin khác không
-        for other_goblin in goblins:
-            if other_goblin != self:  # Không so sánh với chính nó
-                distance = math.sqrt(
-                    (other_goblin.worldX - self.worldX) ** 2 + (other_goblin.worldY - self.worldY) ** 2)
-                if distance < 100:
-                    # Nếu quá gần, điều chỉnh vị trí của goblin
-                    if self.worldX < other_goblin.worldX:
-                        self.worldX -= self.speed
-                    else:
-                        self.worldX += self.speed
-
-                    if self.worldY < other_goblin.worldY:
-                        self.worldY -= self.speed
-                    else:
-                        self.worldY += self.speed
-
     def move_towards_player(self, player_x, player_y):
         # Tính khoảng cách giữa goblin và người chơi
-
+        distance = math.sqrt((player_x + 32 - self.worldX - 64 * 4) ** 2 + (player_y + 48 - self.worldY - 64 * 4) ** 2)
         newx, newy = self.worldX, self.worldY
+        # Nếu khoảng cách nhỏ hơn 100 (hoặc giá trị tùy chỉnh), goblin sẽ tấn công
 
+        if distance < 100:
+            self.attack(player_x, player_y)
+        else:
+            # Nếu không tấn công, di chuyển về phía người chơi
+            if player_x < (self.worldX + 64 * 4):
+                self.direction = "left"
+                newx -= self.speed
+            elif player_x > (self.worldX + 64 * 4):
+                self.direction = "right"
+                newx += self.speed
 
-        # Nếu không tấn công, di chuyển về phía người chơi
-        if player_x < (self.worldX + 64*4):
-            self.direction = "left"
-            newx -= self.speed
-        elif player_x > (self.worldX + 64*4):
-            self.direction = "right"
-            newx += self.speed
-
-        if player_y < (self.worldY + 64*4):
-            self.direction = "up"
-            newy -= self.speed
-        elif player_y > (self.worldY + 64*4):
-            self.direction = "down"
-            newy += self.speed
-
-        if self.can_move_to(newx, newy):
+            if player_y < (self.worldY + 64 * 4):
+                self.direction = "up"
+                newy -= self.speed
+            elif player_y > (self.worldY + 64 * 4):
+                self.direction = "down"
+                newy += self.speed
             self.worldX, self.worldY = newx, newy
-
 
     def draw(self, screen, camera_offset_x, camera_offset_y):
         # Lựa chọn hình ảnh dựa trên trạng thái và hướng
@@ -326,7 +308,6 @@ class GoblinKing(Entity):
 
             if time.time() - self.death_time >= 3:
                 return False
-
         else:
             self.move_towards_player(player_x, player_y)
             # Draw the goblin on the screen
