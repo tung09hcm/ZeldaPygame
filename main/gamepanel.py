@@ -8,6 +8,7 @@ import time
 class GamePanel:
     def __init__(self, width=21 * 64, height=11 * 64, title="My Pygame Window"):
         pygame.init()
+        self.spawn = True
         self.width = width
         self.height = height
         self.title = title
@@ -40,17 +41,90 @@ class GamePanel:
         except FileNotFoundError:
             print(f"Không tìm thấy file player_data.json, sử dụng giá trị mặc định.")
 
+        try:
+            with open("setting.json", "r") as file:
+                data = json.load(file)
+                self.spawn = data.get("spawn")  # Default to "starter" if missing
+        except FileNotFoundError:
+            print(f"Không tìm thấy file player_data.json, sử dụng giá trị mặc định.")
+
         # Create an empty list to store the goblins
         self.goblins = []
-
-        # Assuming `game_map` is already initialized in your main game code
-        for _ in range(1):
-            goblin = Goblin(self.map)
-            self.goblins.append(goblin)
+        self.load_goblin_data()
 
         # Camera offset initialized to (0,0)
         self.camera_offset_x = 0
         self.camera_offset_y = 0
+
+    def save_goblin_data(self):
+        if self.player.player_save_game:
+            xdata = {
+                "spawn": self.spawn
+            }
+            goblin_data_list = []
+            for goblin in self.goblins:
+                data = {
+                    "level": goblin.level,
+                    "max_hp": goblin.max_hp,
+                    "current_hp": goblin.current_hp,
+                    "exp": goblin.exp,
+                    "money": goblin.money,
+                    "worldX": goblin.worldX,
+                    "worldY": goblin.worldY,
+                    "speed": goblin.speed,
+                    "attack_power": goblin.attack_power,
+                    "defense": goblin.defense,
+                    "direction": goblin.direction,
+                    "state": goblin.state,
+                }
+                goblin_data_list.append(data)
+
+            # Ghi dữ liệu vào file JSON
+            with open("goblin_data.json", "w") as file:
+                json.dump(goblin_data_list, file, indent=4)
+            with open("setting.json", "w") as file:
+                json.dump(xdata, file, indent=4)
+
+    def load_goblin_data(self):
+        try:
+            # Đọc dữ liệu từ file JSON
+            with open("goblin_data.json", "r") as file:
+                goblin_data_list = json.load(file)
+            if not goblin_data_list and self.player.current_map == "cave":
+                print("File JSON rỗng. Khởi tạo 15 goblin mới.")
+                if self.spawn:
+                    for _ in range(15):
+                        goblin = Goblin(self.map)
+                        self.goblins.append(goblin)
+                return
+            else:
+                # Khôi phục từng goblin từ dữ liệu trong file
+                self.goblins = []  # Khởi tạo lại danh sách goblin
+                for data in goblin_data_list:
+                    goblin = Goblin(self.map)
+                    goblin.level = data["level"]
+                    goblin.max_hp = data["max_hp"]
+                    goblin.current_hp = data["current_hp"]
+                    goblin.exp = data["exp"]
+                    goblin.money = data["money"]
+                    goblin.worldX = data["worldX"]
+                    goblin.worldY = data["worldY"]
+                    goblin.speed = data["speed"]
+                    goblin.attack_power = data["attack_power"]
+                    goblin.defense = data["defense"]
+                    goblin.direction = data["direction"]
+                    goblin.state = data["state"]
+
+                    self.goblins.append(goblin)  # Thêm goblin mới vào danh sách
+
+        except FileNotFoundError:
+            print("File goblin_data.json không tồn tại.")
+            if self.player.current_map == "cave":
+                for _ in range(15):
+                    goblin = Goblin(self.map)
+                    self.goblins.append(goblin)
+        except json.JSONDecodeError:
+            print("Lỗi đọc file goblin_data.json.")
 
     def handle_keys(self):
         keys = pygame.key.get_pressed()
@@ -114,10 +188,36 @@ class GamePanel:
             if event.type == pygame.QUIT:
                 self.running = False
 
+    def playerLevelUp(self, goblin):
+        self.player.current_xp += goblin.exp
+        if self.player.current_xp > self.player.max_xp:
+            self.player.level = self.player.level + 1
+            self.player.max_hp += 8
+            self.player.current_hp += 8
+            self.player.current_xp = self.player.current_xp - self.player.max_xp
+            self.player.max_xp += 30
+            self.player.money += goblin.money
+            self.player.attack_power += 7
+            self.player.defense += 7
+
     def run(self):
         clock = pygame.time.Clock()
         attack_cooldown = 1.0
+
         while self.running:
+            if self.player.current_hp == 0:
+                self.intialize_map("../resources/map/starter")
+                self.player.go_back_to_health_station()
+                self.player.map = self.map
+                self.spawn = True
+                self.current_map = "starter"
+            if self.player.respawn:
+                self.intialize_map("../resources/map/starter")
+                self.player.respawn = False
+                self.player.map = self.map
+                self.spawn = True
+                self.current_map = "starter"
+                print("Goblin spawn lại")
             self.handle_keys()
 
             self.calculate_camera_offset()
@@ -194,11 +294,20 @@ class GamePanel:
                 self.player.worldX = 23 * 64  # Đặt lại tọa độ x cho người chơi trong cave
                 self.player.worldY = 28 * 64  # Đặt lại tọa độ y cho người chơi trong cave
                 self.player.Cave = False  # Đặt lại Mart thành False để không lặp lại sự kiện
-
+            print("spawn: " + str(self.spawn))
+            print("player_current_map: " + str(self.player.current_map))
+            if self.spawn and self.player.current_map == "cave":
+                for _ in range(15):
+                    goblin = Goblin(self.map)
+                    self.goblins.append(goblin)
+                    self.spawn = False
             for goblin in self.goblins:
                 if not self.player.show_inventory:
-                    goblin.update(self.window, self.camera_offset_x, self.camera_offset_y, self.player.worldX,
-                                  self.player.worldY)
+                    if not goblin.update(self.window, self.camera_offset_x, self.camera_offset_y, self.player.worldX,
+                                         self.player.worldY):
+                        print("Xóa goblin")
+                        self.goblins.remove(goblin)
+
                     goblin.check_collision_with_other_goblins(self.goblins)
                     if goblin.state == "attack":
                         current_time = time.time()
@@ -213,24 +322,45 @@ class GamePanel:
                             goblin.last_attack_time = current_time
                 # check goblin có nằm trong tầm đánh của player ko
                 if self.player.attack:
+                    sword_hit_box = pygame.Rect(self.player.worldX - 96 + self.camera_offset_x,
+                                                self.player.worldY + self.camera_offset_y, 96, 96)
                     if self.player.direction == "left":
-                        print(1)
-                        sword_hit_box = pygame.Rect(self.player.worldX - 96, self.player.worldY, 96, 96)
-                        if goblin.hitbox.colliderect(sword_hit_box):
-                            print(2)
-
+                        # print("left")
+                        sword_hit_box = pygame.Rect(self.player.worldX - 96 + + self.camera_offset_x,
+                                                    self.player.worldY + self.camera_offset_y, 96, 96)
                     elif self.player.direction == "right":
-                        print(1)
-                        sword_hit_box = pygame.Rect(self.player.worldX + 96, self.player.worldY, 96, 96)
+                        # print("right")
+                        sword_hit_box = pygame.Rect(self.player.worldX + 64 + self.camera_offset_x,
+                                                    self.player.worldY + self.camera_offset_y, 96, 96)
                     elif self.player.direction == "down":
-                        print(1)
-                        sword_hit_box = pygame.Rect(self.player.worldX, self.player.worldY+96, 64, 96)
+                        # print("down")
+                        sword_hit_box = pygame.Rect(self.player.worldX + self.camera_offset_x,
+                                                    self.player.worldY + 96 + self.camera_offset_y, 64, 96)
                     elif self.player.direction == "up":
-                        print(1)
-                        sword_hit_box = pygame.Rect(self.player.worldX, self.player.worldY-96, 64, 96)
+                        # print("up")
+                        sword_hit_box = pygame.Rect(self.player.worldX + self.camera_offset_x,
+                                                    self.player.worldY - 96 + self.camera_offset_y, 64, 96)
+
+                    # Vẽ viền màu trắng quanh sword_hit_box
+                    pygame.draw.rect(self.window, (255, 255, 255), sword_hit_box, 3)
+                    goblin_hit_box = pygame.Rect(goblin.worldX + 32 + self.camera_offset_x,
+                                                 goblin.worldY + 32 + self.camera_offset_y, 64, 64)
+                    pygame.draw.rect(self.window, (255, 255, 255), goblin_hit_box, 3)
+                    if goblin_hit_box.colliderect(sword_hit_box):
+                        damage = (self.player.attack_power - goblin.defense) if (
+                                                                                        self.player.attack_power - goblin.defense) > 0 else 3
+
+                        goblin.current_hp -= damage
+                        if goblin.current_hp <= 0:
+                            goblin.current_hp = 0
+                            goblin.state = "death"
+                            self.playerLevelUp(goblin)
+
+
 
             self.checkPlayerAttack()
             self.player.attack = False
+            self.save_goblin_data()
             pygame.display.flip()
             clock.tick(60)
 

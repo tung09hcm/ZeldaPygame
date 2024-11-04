@@ -2,11 +2,13 @@ from entity.entity import Entity
 import pygame
 import os
 import json
+import math
 
 
 class Player(Entity):
     def __init__(self, game_map):
         super().__init__()  # Gọi hàm khởi tạo của lớp cha (Entity)
+        self.respawn = False
         self.last_use_time = 0  # Track last usage time
         self.use_delay = 100  # Delay in milliseconds
         self.current_map = "starter"
@@ -33,7 +35,7 @@ class Player(Entity):
         self.current_hp = 50
         self.max_xp = 50
         self.current_xp = 20
-        self.money = "500$"
+        self.money = 500
 
         self.blocked_code = []
         self.map = game_map
@@ -265,11 +267,11 @@ class Player(Entity):
             ("Level", self.level),
             ("Attack", self.attack_power),
             ("Defense", self.defense),
-            ("Special Attack", self.attack_power * 1.2),  # Example placeholder calculation
-            ("Special Defense", self.defense * 1.1),  # Example placeholder calculation
+            ("Special Attack", math.ceil(self.attack_power * 1.2)),  # Example placeholder calculation
+            ("Special Defense", math.ceil(self.defense * 1.1)),  # Example placeholder calculation
             ("HP", f"{self.current_hp}/{self.max_hp}"),
             ("EXP", f"{self.current_xp}/{self.max_xp}"),
-            ("Money", f"{self.money}")
+            ("Money", f"{self.money}$")
         ]
 
         # Render each stat label and value
@@ -461,6 +463,12 @@ class Player(Entity):
 
         return True  # Tất cả các điểm đều không bị chặn
 
+    def go_back_to_health_station(self):
+        self.current_map = "starter"
+        self.worldX = 17 * 64
+        self.worldY = 16 * 64
+        self.current_hp = self.max_hp
+
     def handle_keys(self):
         keys = pygame.key.get_pressed()
         current_time = pygame.time.get_ticks()
@@ -528,10 +536,27 @@ class Player(Entity):
                     print("save game")
                     self.save_player_data("player_data.json")
                 elif self.use:
+
                     print("use " + self.inventory_list[self.item_index][0])
 
                     # Lấy tên khóa từ inventory_list dựa trên chỉ số item_index
                     item_name = self.inventory_list[self.item_index][0]
+
+                    if item_name == "FULLRESTORE":
+                        self.current_hp = self.max_hp
+                    elif item_name == "HYPERPOTION":
+                        self.current_hp += 200
+                    elif item_name == "MAXPOTION":
+                        self.current_hp = self.max_hp
+                    elif item_name == "POTION":
+                        self.current_hp += 20
+                    elif item_name == "SUPERPOTION":
+                        self.current_hp += 50
+                    elif item_name == "PORTALSTONE":
+                        self.go_back_to_health_station()
+                        self.respawn = True
+                    if self.current_hp > self.max_hp:
+                        self.current_hp = self.max_hp
 
                     # Cập nhật số lượng item trong inventory_map
                     self.inventory_map[item_name] -= 1
@@ -617,7 +642,6 @@ class Player(Entity):
         # Draw player with calculated offset
         # if not self.show_inventory:
         screen.blit(self.image, (screen_x, screen_y))
-
 
         self.draw_bars(screen)
 

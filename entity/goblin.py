@@ -4,6 +4,7 @@ import os
 import json
 import random
 import math
+import time
 
 
 class Goblin(Entity):
@@ -30,8 +31,8 @@ class Goblin(Entity):
         self.worldY = random.randint(5, 15) * 64
         self.level = random.randint(1, 3)
         self.max_hp = random.randint(25, 30)
-        self.current_hp = 10
-        self.xp = random.randint(10, 15)
+        self.current_hp = self.max_hp
+        self.exp = random.randint(10, 15)
         self.money = random.randint(10, 20)
         self.direction = "down"
         self.state = "idle"  # Possible states: idle, attack, hurt, move
@@ -42,7 +43,7 @@ class Goblin(Entity):
         self.current_frame = 0
         self.animation_counter = 0
 
-        self.hitbox = pygame.Rect(self.worldX+32, self.worldY+32, 64, 64)
+        self.death_time = 0
 
         self.down_images = [
             pygame.transform.scale2x(pygame.image.load("../resources/goblin/000.png").convert_alpha()),
@@ -175,7 +176,6 @@ class Goblin(Entity):
             tile_y = int(py // self.tile_size)  # Ép kiểu thành int
 
             if self.map[tile_y][tile_x] in self.blocked_code:
-                print("mã bị chặn là: " + str(self.map[tile_y][tile_x]))
                 return False  # Nếu một trong các điểm va chạm bị chặn thì trả về False
 
         return True  # Tất cả các điểm đều không bị chặn
@@ -257,14 +257,14 @@ class Goblin(Entity):
             # Draw a white outline exactly around the 64x64 image
             outline_color = (255, 255, 255)  # White color
             outline_rect = pygame.Rect(x, y, 128, 128)  # Outline rectangle exactly the same size as the image
-            hitbox_rect = pygame.Rect(x+32, y+32, 64,64)
+            hitbox_rect = pygame.Rect(x + 32, y + 32, 64, 64)
             pygame.draw.rect(screen, outline_color, outline_rect, width=1)
             pygame.draw.rect(screen, outline_color, hitbox_rect, width=1)
 
             # Define the health bar dimensions and position
             health_bar_width = 64  # Match goblin's width
             health_bar_height = 6  # Height of the health bar
-            health_bar_x = x + 32 # Position it above the goblin
+            health_bar_x = x + 32  # Position it above the goblin
             health_bar_y = y + 32 - health_bar_height - 5  # Slightly above the goblin's head
 
             # Calculate the width of the health portion based on current_hp and max_hp
@@ -310,12 +310,36 @@ class Goblin(Entity):
         self.state = "hurt"
 
     def update(self, screen, camera_offset_x, camera_offset_y, player_x, player_y):
+        if self.state == "death":
+            if self.death_time == 0:
+                self.death_time = time.time()
+            images = getattr(self, f"death_{self.direction}_images", None)
 
-        # Switch between idle and move state to simulate wandering
-        if self.state == "idle" and random.random() < 0.05:
-            self.move()
-        elif self.state == "move" and random.random() < 0.1:
-            self.state = "idle"
-        self.move_towards_player(player_x, player_y)
-        # Draw the goblin on the screen
-        self.draw(screen, camera_offset_x, camera_offset_y)
+            if images and len(images) > 0:  # Đảm bảo có hình ảnh để vẽ
+                # Cập nhật khung hình cho hoạt ảnh chết, sau đó giữ nguyên khung cuối cùng khi hoàn thành
+                if self.current_frame < len(images) - 1:
+                    # Chỉ tăng `current_frame` khi chưa đạt khung cuối
+                    self.animation_counter += 1
+                    if self.animation_counter >= 10:  # Điều chỉnh tốc độ hoạt ảnh
+                        self.current_frame += 1
+                        self.animation_counter = 0
+
+                # Lấy hình ảnh hiện tại từ chuỗi `images`
+                current_image = images[self.current_frame]
+                x = self.worldX + camera_offset_x
+                y = self.worldY + camera_offset_y
+                screen.blit(current_image, (x, y))
+
+            if time.time() - self.death_time >= 3:
+                return False
+
+        else:
+            # Switch between idle and move state to simulate wandering
+            if self.state == "idle" and random.random() < 0.05:
+                self.move()
+            elif self.state == "move" and random.random() < 0.1:
+                self.state = "idle"
+            self.move_towards_player(player_x, player_y)
+            # Draw the goblin on the screen
+            self.draw(screen, camera_offset_x, camera_offset_y)
+        return True
