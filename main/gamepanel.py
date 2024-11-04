@@ -1,13 +1,15 @@
 import pygame
 from entity.player import Player
 from entity.goblin import Goblin
+from entity.goblinKing import GoblinKing
 import json
 import time
-
+import math
 
 class GamePanel:
     def __init__(self, width=21 * 64, height=11 * 64, title="My Pygame Window"):
         pygame.init()
+        self.defeat_boss = False
         self.spawn = True
         self.width = width
         self.height = height
@@ -45,6 +47,7 @@ class GamePanel:
             with open("setting.json", "r") as file:
                 data = json.load(file)
                 self.spawn = data.get("spawn")  # Default to "starter" if missing
+                self.defeat_boss = data.get("defeat_boss")
         except FileNotFoundError:
             print(f"Không tìm thấy file player_data.json, sử dụng giá trị mặc định.")
 
@@ -55,11 +58,13 @@ class GamePanel:
         # Camera offset initialized to (0,0)
         self.camera_offset_x = 0
         self.camera_offset_y = 0
+        self.goblinKing = GoblinKing(self.map)
 
     def save_goblin_data(self):
         if self.player.player_save_game:
             xdata = {
-                "spawn": self.spawn
+                "spawn": self.spawn,
+                "defeat_boss": self.defeat_boss
             }
             goblin_data_list = []
             for goblin in self.goblins:
@@ -96,6 +101,7 @@ class GamePanel:
                     for _ in range(15):
                         goblin = Goblin(self.map)
                         self.goblins.append(goblin)
+                self.spawn = False
                 return
             else:
                 # Khôi phục từng goblin từ dữ liệu trong file
@@ -123,6 +129,7 @@ class GamePanel:
                 for _ in range(15):
                     goblin = Goblin(self.map)
                     self.goblins.append(goblin)
+                self.spawn = False
         except json.JSONDecodeError:
             print("Lỗi đọc file goblin_data.json.")
 
@@ -205,19 +212,22 @@ class GamePanel:
         attack_cooldown = 1.0
 
         while self.running:
+
             if self.player.current_hp == 0:
                 self.intialize_map("../resources/map/starter")
                 self.player.go_back_to_health_station()
                 self.player.map = self.map
                 self.spawn = True
                 self.current_map = "starter"
-            if self.player.respawn:
+            elif self.player.respawn:
                 self.intialize_map("../resources/map/starter")
                 self.player.respawn = False
                 self.player.map = self.map
                 self.spawn = True
                 self.current_map = "starter"
                 print("Goblin spawn lại")
+            # if self.player.current_map == "starter":
+            #     self.goblinKing = GoblinKing(self.map)
             self.handle_keys()
 
             self.calculate_camera_offset()
@@ -294,8 +304,8 @@ class GamePanel:
                 self.player.worldX = 23 * 64  # Đặt lại tọa độ x cho người chơi trong cave
                 self.player.worldY = 28 * 64  # Đặt lại tọa độ y cho người chơi trong cave
                 self.player.Cave = False  # Đặt lại Mart thành False để không lặp lại sự kiện
-            print("spawn: " + str(self.spawn))
-            print("player_current_map: " + str(self.player.current_map))
+            # print("spawn: " + str(self.spawn))
+            # print("player_current_map: " + str(self.player.current_map))
             if self.spawn and self.player.current_map == "cave":
                 for _ in range(15):
                     goblin = Goblin(self.map)
@@ -355,8 +365,68 @@ class GamePanel:
                             goblin.current_hp = 0
                             goblin.state = "death"
                             self.playerLevelUp(goblin)
+            # BOSS
+            if len(self.goblins) == 0 and self.player.current_map == "cave" and not self.defeat_boss:
 
+                if self.goblinKing.current_hp == 0:
+                    self.goblinKing.state = "death"
+                    self.defeat_boss = True
+                if not self.player.show_inventory:
+                    if self.goblinKing.update(self.window, self.camera_offset_x, self.camera_offset_y,
+                                           self.player.worldX,
+                                           self.player.worldY):
+                        print("goblinKing state: " + self.goblinKing.state)
+                        distance = math.sqrt((self.player.worldX - self.goblinKing.worldX + 64 * 4) ** 2 + (self.player.worldY - self.goblinKing.worldY + 64 * 4) ** 2)
+                        if self.goblinKing.state == "attack" and distance < 64:
+                            print("Goblin King ATTACk")
+                            current_time = time.time()
+                            if current_time - self.goblinKing.last_attack_time >= 0.5:
+                                # Apply damage to the player
+                                damage = (self.goblinKing.attack_power - self.player.defense) if (
+                                                                                                             self.goblinKing.attack_power - self.player.defense) > 0 else 20
 
+                                self.player.current_hp -= damage
+                                if self.player.current_hp <= 0:
+                                    self.player.current_hp = 0
+                                # Update the last attack time for the goblin
+                                self.goblinKing.last_attack_time = current_time
+                        else:
+                            self.goblinKing.state = "move"
+                # check goblin có nằm trong tầm đánh của player ko
+                if self.player.attack and self.goblinKing.state != "death":
+                    sword_hit_box = pygame.Rect(self.player.worldX - 96 + self.camera_offset_x,
+                                                self.player.worldY + self.camera_offset_y, 96, 96)
+                    if self.player.direction == "left":
+                        # print("left")
+                        sword_hit_box = pygame.Rect(self.player.worldX - 96 + + self.camera_offset_x,
+                                                    self.player.worldY + self.camera_offset_y, 96, 96)
+                    elif self.player.direction == "right":
+                        # print("right")
+                        sword_hit_box = pygame.Rect(self.player.worldX + 64 + self.camera_offset_x,
+                                                    self.player.worldY + self.camera_offset_y, 96, 96)
+                    elif self.player.direction == "down":
+                        # print("down")
+                        sword_hit_box = pygame.Rect(self.player.worldX + self.camera_offset_x,
+                                                    self.player.worldY + 96 + self.camera_offset_y, 64, 96)
+                    elif self.player.direction == "up":
+                        # print("up")
+                        sword_hit_box = pygame.Rect(self.player.worldX + self.camera_offset_x,
+                                                    self.player.worldY - 96 + self.camera_offset_y, 64, 96)
+
+                    # Vẽ viền màu trắng quanh sword_hit_box
+                    pygame.draw.rect(self.window, (255, 255, 255), sword_hit_box, 3)
+                    goblin_hit_box = pygame.Rect(self.goblinKing.worldX + 64 * 2 + self.camera_offset_x,
+                                                 self.goblinKing.worldY + 64 * 2 + self.camera_offset_y, 64 * 4, 64 * 4)
+                    pygame.draw.rect(self.window, (255, 255, 255), goblin_hit_box, 3)
+                    if goblin_hit_box.colliderect(sword_hit_box):
+                        damage = (self.player.attack_power - self.goblinKing.defense) if (
+                                                                                                     self.player.attack_power - self.goblinKing.defense) > 0 else 10
+
+                        self.goblinKing.current_hp -= damage
+                        if self.goblinKing.current_hp <= 0:
+                            self.goblinKing.current_hp = 0
+                            self.goblinKing.state = "death"
+                            self.playerLevelUp(self.goblinKing)
 
             self.checkPlayerAttack()
             self.player.attack = False
