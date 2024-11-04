@@ -1,0 +1,14 @@
+{
+    "level": 15,
+    "max_hp": 1500,
+    "current_hp": 0,
+    "exp": 100,
+    "money": 1000,
+    "worldX": 1370,
+    "worldY": 538,
+    "speed": 3,
+    "attack_power": 30,
+    "defense": 30,
+    "direction": "up",
+    "state": "move"
+}

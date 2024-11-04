@@ -60,7 +60,51 @@ class GamePanel:
         self.camera_offset_x = 0
         self.camera_offset_y = 0
         self.goblinKing = GoblinKing(self.map)
+        if self.defeat_boss:
+            self.load_goblin_king_data()
 
+    def save_goblin_king_data(self):
+        if self.player.player_save_game:
+            data = {
+                "level": self.goblinKing.level,
+                "max_hp": self.goblinKing.max_hp,
+                "current_hp": self.goblinKing.current_hp,
+                "exp": self.goblinKing.exp,
+                "money": self.goblinKing.money,
+                "worldX": self.goblinKing.worldX,
+                "worldY": self.goblinKing.worldY,
+                "speed": self.goblinKing.speed,
+                "attack_power": self.goblinKing.attack_power,
+                "defense": self.goblinKing.defense,
+                "direction": self.goblinKing.direction,
+                "state": self.goblinKing.state,
+            }
+            with open("goblin_king_data.json", "w") as file:
+                json.dump(data, file, indent=4)
+
+    def load_goblin_king_data(self):
+        try:
+            # Đọc dữ liệu từ file JSON
+            with open("goblin_king_data.json", "r") as file:
+                data = json.load(file)
+                # Cập nhật các thuộc tính của goblinKing từ dữ liệu đã lưu
+                self.goblinKing.level = data.get("level", self.goblinKing.level)
+                self.goblinKing.max_hp = data.get("max_hp", self.goblinKing.max_hp)
+                self.goblinKing.current_hp = data.get("current_hp", self.goblinKing.current_hp)
+                self.goblinKing.exp = data.get("exp", self.goblinKing.exp)
+                self.goblinKing.money = data.get("money", self.goblinKing.money)
+                self.goblinKing.worldX = data.get("worldX", self.goblinKing.worldX)
+                self.goblinKing.worldY = data.get("worldY", self.goblinKing.worldY)
+                self.goblinKing.speed = data.get("speed", self.goblinKing.speed)
+                self.goblinKing.attack_power = data.get("attack_power", self.goblinKing.attack_power)
+                self.goblinKing.defense = data.get("defense", self.goblinKing.defense)
+                self.goblinKing.direction = data.get("direction", self.goblinKing.direction)
+                self.goblinKing.state = data.get("state", self.goblinKing.state)
+            print("Goblin King data loaded successfully.")
+        except FileNotFoundError:
+            print("Goblin King save data file not found. Using default values.")
+        except json.JSONDecodeError:
+            print("Error decoding Goblin King save data. Using default values.")
     def save_goblin_data(self):
         if self.player.player_save_game:
             xdata = {
@@ -102,6 +146,7 @@ class GamePanel:
                     for _ in range(15):
                         goblin = Goblin(self.map)
                         self.goblins.append(goblin)
+                    self.load_goblin_king_data()
                 self.spawn = False
                 return
             else:
@@ -130,6 +175,7 @@ class GamePanel:
                 for _ in range(15):
                     goblin = Goblin(self.map)
                     self.goblins.append(goblin)
+                self.load_goblin_king_data()
                 self.spawn = False
         except json.JSONDecodeError:
             print("Lỗi đọc file goblin_data.json.")
@@ -227,7 +273,10 @@ class GamePanel:
                 self.intialize_map("../resources/map/starter")
                 self.player.respawn = False
                 self.player.map = self.map
-                self.spawn = True
+                if not self.defeat_boss:
+                    self.spawn = True
+                else:
+                    self.spawn = False
                 self.current_map = "starter"
                 self.defeat_boss = False
                 print("Goblin spawn lại")
@@ -437,7 +486,7 @@ class GamePanel:
             self.checkPlayerAttack()
             self.player.attack = False
             self.save_goblin_data()
-
+            self.save_goblin_king_data()
             pygame.display.flip()
 
             clock.tick(60)
