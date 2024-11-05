@@ -5,11 +5,12 @@ from entity.goblinKing import GoblinKing
 import json
 import time
 import math
-
+from sound import SoundManager
 
 class GamePanel:
     def __init__(self, width=21 * 64, height=11 * 64, title="My Pygame Window"):
         pygame.init()
+        self.sound_manager = SoundManager()
         self.defeat_boss = False
         self.spawn = True
         self.width = width
@@ -60,7 +61,7 @@ class GamePanel:
         self.camera_offset_x = 0
         self.camera_offset_y = 0
         self.goblinKing = GoblinKing(self.map)
-        if self.defeat_boss:
+        if not self.defeat_boss:
             self.load_goblin_king_data()
 
     def save_goblin_king_data(self):
@@ -257,10 +258,24 @@ class GamePanel:
     def run(self):
         clock = pygame.time.Clock()
         attack_cooldown = 1.0
-
+        turn_on = False
         player_hit_box = pygame.Rect(self.player.worldX + self.camera_offset_x,
                                      self.player.worldY + self.camera_offset_y, 64, 96)
+
         while self.running:
+            if self.goblinKing.state == "death":
+                self.sound_manager.stop_sound("battle_champion")
+                self.sound_manager.play_sound_with_duration("victory", duration=5)
+            if self.player.current_map == "starter":
+                self.sound_manager.stop_sound("cave")
+                self.sound_manager.stop_sound("battle_champion")
+                self.sound_manager.stop_sound("battle_elite")
+                self.sound_manager.play_sound("cedolan_city", loop=True)
+            elif self.player.current_map == "cave" and not turn_on:
+                self.sound_manager.stop_sound("cedolan_city")
+                self.sound_manager.stop_sound("battle_champion")
+                self.sound_manager.stop_sound("battle_elite")
+                self.sound_manager.play_sound("cave", loop=True)
 
             if self.player.current_hp == 0:
                 self.intialize_map("../resources/map/starter")
@@ -269,6 +284,7 @@ class GamePanel:
                 self.spawn = True
                 self.current_map = "starter"
                 self.defeat_boss = False
+                self.goblinKing.current_hp = self.goblinKing.max_hp
             elif self.player.respawn:
                 self.intialize_map("../resources/map/starter")
                 self.player.respawn = False
@@ -280,6 +296,7 @@ class GamePanel:
                 self.current_map = "starter"
                 self.defeat_boss = False
                 print("Goblin spawn lại")
+                self.goblinKing.current_hp = self.goblinKing.max_hp
             # if self.player.current_map == "starter":
             #     self.goblinKing = GoblinKing(self.map)
             self.handle_keys()
@@ -292,7 +309,7 @@ class GamePanel:
             # Kiểm tra nếu người chơi thoát khỏi mart/cave về overworld
             tilex = self.player.worldX // self.tile_size
             tiley = self.player.worldY // self.tile_size
-
+            print("tilex " + str(tilex) + " tiley: " + str(tiley))
             if tilex == 16 and tiley == 18 and not self.player.overWorld and self.player.current_map == "mart":
                 self.player.current_map = "starter"
                 # Hiển thị màn hình đen tạm thời trong 50ms
@@ -308,8 +325,7 @@ class GamePanel:
                 self.player.Mart = False
                 self.player.Cave = False
                 print("Enter the Overworld")
-            if (
-                    tilex == 23 or tilex == 22) and tiley == 29 and not self.player.overWorld and self.player.current_map == "cave":
+            if (tilex == 23 or tilex == 22) and tiley == 29 and not self.player.overWorld and self.player.current_map == "cave":
                 print("gán map thành starter")
                 self.player.current_map = "starter"
                 # Hiển thị màn hình đen tạm thời trong 50ms
@@ -325,6 +341,11 @@ class GamePanel:
                 self.player.Mart = False
                 self.player.Cave = False
                 print("Enter the Overworld")
+            if (tilex == 15 or tilex == 16) and tiley == 14 and self.player.current_map == "starter":
+                self.window.fill((0, 0, 0))
+                pygame.display.flip()
+                pygame.time.delay(50)
+                self.player.go_back_to_health_station()
 
             # Draw player with camera offset
             self.player.handle_keys()
@@ -421,8 +442,12 @@ class GamePanel:
                             self.playerLevelUp(goblin)
 
             # BOSS
-            if len(self.goblins) == 0 and self.player.current_map == "cave":
-
+            if len(self.goblins) == 0 and self.player.current_map == "cave" and self.goblinKing.state != "death":
+                self.sound_manager.stop_sound("cedolan_city")
+                self.sound_manager.stop_sound("cave")
+                self.sound_manager.stop_sound("battle_elite")
+                self.sound_manager.play_sound("battle_champion", loop=True)
+                turn_on = True
                 goblin_hit_box = pygame.Rect(self.goblinKing.worldX + 64 * 2 + self.camera_offset_x,
                                              self.goblinKing.worldY + 64 * 2 + self.camera_offset_y, 64 * 4, 64 * 4)
 
@@ -482,6 +507,8 @@ class GamePanel:
                             self.goblinKing.current_hp = 0
                             self.goblinKing.state = "death"
                             self.playerLevelUp(self.goblinKing)
+                            self.sound_manager.play_sound("victory")
+                            turn_on = False
 
             self.checkPlayerAttack()
             self.player.attack = False
